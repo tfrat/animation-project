@@ -22,26 +22,26 @@
       var cube = new THREE.Mesh( geometry, material );
       scene.add( cube );
 
-						camera.position.x = 50;
-						camera.position.y = 50;
-						camera.position.z = 100;
+			camera.position.x = 50;
+			camera.position.y = 50;
+			camera.position.z = 100;
 
-						var initialTime = Date.now()
+			var initialTime = Date.now()
 
-						var render = function () {
-							requestAnimationFrame( render );
+			var render = function () {
+				requestAnimationFrame( render );
 
-							var t = (Date.now() - initialTime) / 1000
+				var t = (Date.now() - initialTime) / 1000
 
-							if (t <= 20) {
+				if (t <= 20) {
 
-								cube.rotation.y = t * 18 * (Math.PI/180)
+					cube.rotation.y = t * 18 * (Math.PI/180)
 
-								cube.position.setX(5 * t)
-								cube.position.setY(5 * t)
-								renderer.render( scene, camera );
-							}
-			      }
+					cube.position.setX(5 * t)
+					cube.position.setY(5 * t)
+					renderer.render( scene, camera );
+				}
+    	}
 
 			render();
 		</script>
