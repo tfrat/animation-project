@@ -26,19 +26,19 @@
 						camera.position.y = 50;
 						camera.position.z = 100;
 
-						var t = Date.now()
+						var initialTime = Date.now()
 
 						var render = function () {
 							requestAnimationFrame( render );
 
-							var delta = (Date.now() - t) / 1000
+							var t = (Date.now() - initialTime) / 1000
 
-							if (delta <= 20) {
+							if (t <= 20) {
 
-								cube.rotation.y = delta * 18 * (Math.PI/180)
+								cube.rotation.y = t * 18 * (Math.PI/180)
 
-								cube.position.setX(5 * delta)
-								cube.position.setY(5 * delta)
+								cube.position.setX(5 * t)
+								cube.position.setY(5 * t)
 								renderer.render( scene, camera );
 							}
 			      }
