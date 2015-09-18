@@ -8,10 +8,10 @@
 	</head>
 	<body>
 		<script src="../../js/three.min.js"></script>
+		<script src="../../js/animator.js"></script>
 		<script>
       var scene = new THREE.Scene();
       var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-
 
       var renderer = new THREE.WebGLRenderer();
       renderer.setSize( window.innerWidth, window.innerHeight );
@@ -26,24 +26,15 @@
 			camera.position.y = 50;
 			camera.position.z = 100;
 
-			var initialTime = Date.now()
-
-			var render = function () {
-				requestAnimationFrame( render );
-
-				var t = (Date.now() - initialTime) / 1000
-
-				if (t <= 20) {
-
+			var animation = function (t) {
 					cube.rotation.y = t * 18 * (Math.PI/180)
 
 					cube.position.setX(5 * t)
 					cube.position.setY(5 * t)
-					renderer.render( scene, camera );
-				}
-    	}
+			}
 
-			render();
+			animate(scene, renderer, 20, animation)
+
 		</script>
 	</body>
 </html>
