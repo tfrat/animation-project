@@ -26,10 +26,6 @@
 						camera.position.y = 50;
 						camera.position.z = 100;
 
-						console.log("x: " + camera.position.x)
-						console.log("y: " + camera.position.y)
-						console.log("z: " + camera.position.z)
-
 						var t = Date.now()
 
 						var render = function () {
@@ -40,7 +36,6 @@
 							if (delta <= 20) {
 
 								cube.rotation.y = delta * 18 * (Math.PI/180)
-								console.log(delta * (Math.PI/180))
 
 								cube.position.setX(5 * delta)
 								cube.position.setY(5 * delta)
