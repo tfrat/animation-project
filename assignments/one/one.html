@@ -73,8 +73,6 @@
 							// Given a line that doesn't match the keyframe syntax
 						}
 					}
-					printKeyframes()
-
 					currentFrame = keyframe
 
 					animate(scene, renderer, keyframe.getLast().t, animation)
@@ -85,14 +83,6 @@
 		}
 		evt.preventDefault();
 	}, false);
-
-	function printKeyframes() {
-		tempFrame = keyframe
-		while(tempFrame != null) {
-			console.log(tempFrame)
-			tempFrame = tempFrame.peek()
-		}
-	}
 
 	var animation = function (t) {
 
