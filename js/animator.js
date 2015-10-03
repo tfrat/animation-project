@@ -1,17 +1,11 @@
-function Keyframe(t, x, y, z, xa, ya, za, theta) {
+function Keyframe(t, position, rotation) {
   if (isNaN(t)) {
     throw "Not a number"
   }
   this.t = t
-  this.x = x
-  this.y = y
-  this.z = z
-  this.xa = xa
-  this.ya = ya
-  this.za = za
-  this.theta = theta
+  this.position = position
+  this.rotation = rotation
 
-  this.head = true
   this.next = null
 }
 
@@ -39,25 +33,24 @@ Keyframe.prototype.getLast = function() {
   }
 }
 
+Keyframe.prototype.interpolate = function(nextFrame, u) {
+  var newPosition = new THREE.Vector3()
+
+  newPosition.lerpVectors(this.position, nextFrame.position, u)
+
+  return new Keyframe(u, newPosition, this.rotation)
+}
+
 Keyframe.prototype.toString = function () {
     return "Keyframe: t -> " + this.t +
-                   ", x ->" + this.x +
-                   ", y ->" + this.y +
-                   ", z ->" + this.z +
-                   ", xa ->" + this.xa +
-                   ", ya ->" + this.ya +
-                   ", za ->" + this.za +
-                   ", theta ->" + this.theta
+                   ", x ->" + this.position.x +
+                   ", y ->" + this.position.y +
+                   ", z ->" + this.position.z +
+                   ", xa ->" + this.rotation.x +
+                   ", ya ->" + this.rotation.y +
+                   ", za ->" + this.rotation.z +
+                   ", th ->" + this.rotation.w
 };
-
-function interpolate(frameOne, frameTwo, t) {
-
-  var newX = (frameTwo.x - frameOne.x) * t + frameOne.x
-  var newY = (frameTwo.y - frameOne.y) * t + frameOne.y
-  var newZ = (frameTwo.z - frameOne.z) * t + frameOne.z
-
-  return new Keyframe(t, newX, newY, newZ, 0, 0, 0, 0)
-}
 
 function animate (scene, renderer, duration, animation) {
 
