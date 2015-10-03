@@ -61,7 +61,7 @@
 																													parseInt(lineSplit[6])),
 																													THREE.Math.degToRad(parseInt(lineSplit[7])))
 							rotation.normalize()
-							var frame = new Keyframe(t, position, rotation)
+							var frame = new Frame(t, position, rotation)
 
 							if(keyframe == null) {
 								keyframe = frame

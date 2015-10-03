@@ -1,4 +1,4 @@
-function Keyframe(t, position, rotation) {
+function Frame(t, position, rotation) {
   if (isNaN(t)) {
     throw "Not a number"
   }
@@ -9,7 +9,7 @@ function Keyframe(t, position, rotation) {
   this.next = null
 }
 
-Keyframe.prototype.push = function(keyframe) {
+Frame.prototype.push = function(keyframe) {
   if(!this.hasNext()) {
     this.next = keyframe
   } else {
@@ -17,15 +17,15 @@ Keyframe.prototype.push = function(keyframe) {
   }
 }
 
-Keyframe.prototype.peek = function() {
+Frame.prototype.peek = function() {
   return this.next
 }
 
-Keyframe.prototype.hasNext = function() {
+Frame.prototype.hasNext = function() {
   return this.next != null
 }
 
-Keyframe.prototype.getLast = function() {
+Frame.prototype.getLast = function() {
   if(!this.hasNext()) {
     return this
   }else{
@@ -33,7 +33,7 @@ Keyframe.prototype.getLast = function() {
   }
 }
 
-Keyframe.prototype.interpolate = function(nextFrame, u) {
+Frame.prototype.interpolate = function(nextFrame, u) {
   var newPosition = new THREE.Vector3()
 
   newPosition.lerpVectors(this.position, nextFrame.position, u)
@@ -41,10 +41,10 @@ Keyframe.prototype.interpolate = function(nextFrame, u) {
   var newRotation = new THREE.Quaternion()
   THREE.Quaternion.slerp(this.rotation, nextFrame.rotation, newRotation, u)
 
-  return new Keyframe(u, newPosition, newRotation)
+  return new Frame(u, newPosition, newRotation)
 }
 
-Keyframe.prototype.toString = function () {
+Frame.prototype.toString = function () {
     return "Keyframe: t -> " + this.t +
                    ", x ->" + this.position.x +
                    ", y ->" + this.position.y +
