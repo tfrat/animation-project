@@ -38,7 +38,10 @@ Keyframe.prototype.interpolate = function(nextFrame, u) {
 
   newPosition.lerpVectors(this.position, nextFrame.position, u)
 
-  return new Keyframe(u, newPosition, this.rotation)
+  var newRotation = new THREE.Quaternion()
+  THREE.Quaternion.slerp(this.rotation, nextFrame.rotation, newRotation, u)
+
+  return new Keyframe(u, newPosition, newRotation)
 }
 
 Keyframe.prototype.toString = function () {

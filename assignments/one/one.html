@@ -61,6 +61,7 @@
 																													parseInt(lineSplit[6])),
 																													parseInt(lineSplit[7]) * (Math.PI/180))
 
+							rotation.normalize()
 							var frame = new Keyframe(t, position, rotation)
 
 							if(keyframe == null) {
@@ -107,6 +108,13 @@
 			cube.position.setX(newFrame.position.x)
 			cube.position.setY(newFrame.position.y)
 			cube.position.setZ(newFrame.position.z)
+
+			var euler = new THREE.Euler()
+			euler.setFromQuaternion(newFrame.rotation)
+
+			cube.rotation.x = euler.x
+			cube.rotation.y = euler.y
+			cube.rotation.z = euler.z
 		}
 
 
