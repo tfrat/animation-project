@@ -59,8 +59,7 @@
 						  rotation.setFromAxisAngle(new THREE.Vector3(parseInt(lineSplit[4]),
 																													parseInt(lineSplit[5]),
 																													parseInt(lineSplit[6])),
-																													parseInt(lineSplit[7]) * (Math.PI/180))
-
+																													THREE.Math.degToRad(parseInt(lineSplit[7])))
 							rotation.normalize()
 							var frame = new Keyframe(t, position, rotation)
 
