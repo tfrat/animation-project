@@ -23,6 +23,15 @@
 	var canvas = renderer.domElement
 	document.body.appendChild( canvas );
 
+	window.addEventListener( 'resize', onWindowResize, false );
+	// Update the canvas and camera when the browser window size is modified
+	function onWindowResize(){
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+	}
+
 	// Generate the scene
 	var geometry = new THREE.BoxGeometry( 10, 10, 10 );
 	var material = new THREE.MeshBasicMaterial( { color: 0x00aaaa } );
