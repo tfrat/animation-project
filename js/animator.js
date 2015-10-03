@@ -63,8 +63,9 @@ function animate (scene, renderer, duration, animation) {
 
     if (t <= duration) {
       animation(t)
+
+      renderer.render( scene, camera )
     }
-    renderer.render( scene, camera )
   }
 
   render();
