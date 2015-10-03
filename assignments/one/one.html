@@ -98,11 +98,13 @@
 
 			if(currentFrame.peek().t <= t) {
 				currentFrame = currentFrame.peek()
+				console.log("===================== Keyframe Swap: " + t)
 			}
 
 			var newFrame = currentFrame.interpolate(currentFrame.peek(), t - currentFrame.t)
 
-			console.log("T: " + t + ", " + newFrame)
+			console.log("X: " + newFrame.rotation.x + ", Y: " + newFrame.rotation.y +
+								", Z: " + newFrame.rotation.z + ", W: " + newFrame.rotation.w)
 
 			cube.position.setX(newFrame.position.x)
 			cube.position.setY(newFrame.position.y)
