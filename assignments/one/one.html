@@ -7,6 +7,7 @@
 	</style>
 </head>
 <body>
+	<input type="file" id="fileLoader" style="display:none;" />
 	<script src="../../js/three.min.js"></script>
 	<script src="../../js/animator.js"></script>
 	<script>
@@ -43,16 +44,41 @@
 	camera.position.y = 0;
 	camera.position.x = 0;
 
+	// Used to load files from the file chooser.
+	var fileLoader = document.getElementById("fileLoader")
+	fileLoader.addEventListener("change", getInputFile, false)
+
+	// Allows the user to use the file chooser instead of clicking.
+	canvas.addEventListener("click", function () {
+		console.log("Clicked")
+		fileLoader.click()
+	});
+
 	// To enable drag and drop
 	canvas.addEventListener("dragover", function (evt) {
 		evt.preventDefault();
 	}, false);
 
 	// Loads the file and creates the Keyframes list
-	canvas.addEventListener("drop", function (evt) {
-		var files = evt.dataTransfer.files;
-		if (files.length > 0) {
-			var file = files[0];
+	canvas.addEventListener("drop", getDropFile, false);
+
+	// Gets the file from a drop event.
+	function getDropFile(evt) {
+		evt.preventDefault();
+		loadFile(evt.dataTransfer.files[0])
+	}
+
+	// Get the file from a click.
+	function getInputFile(evt) {
+		evt.preventDefault();
+		loadFile(fileLoader.files[0])
+	}
+
+	/**
+	 * Extracts the keyframe data and creates a linkedlist of keyframes.
+	 * Also launches the animation once the keyframes have been extracted.
+	 */
+  function loadFile(file) {
 			// Make sure the browser supports FileReader
 			if (typeof FileReader !== "undefined") {
 				var reader = new FileReader();
@@ -103,9 +129,7 @@
 				}
 				reader.readAsText(file)
 			}
-		}
-		evt.preventDefault();
-	}, false);
+	}
 
 	var animation = function (t) {
 
@@ -137,6 +161,5 @@
 		}
 
 	</script>
-
 </body>
 </html>
