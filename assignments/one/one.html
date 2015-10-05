@@ -65,70 +65,13 @@
 	// Gets the file from a drop event.
 	function getDropFile(evt) {
 		evt.preventDefault();
-		loadFile(evt.dataTransfer.files[0])
+		loadKeyframes(evt.dataTransfer.files[0])
 	}
 
 	// Get the file from a click.
 	function getInputFile(evt) {
 		evt.preventDefault();
-		loadFile(fileLoader.files[0])
-	}
-
-	/**
-	 * Extracts the keyframe data and creates a linkedlist of keyframes.
-	 * Also launches the animation once the keyframes have been extracted.
-	 */
-  function loadFile(file) {
-			// Make sure the browser supports FileReader
-			if (typeof FileReader !== "undefined") {
-				var reader = new FileReader();
-				reader.onload = function (evt) {
-					// Each file has the form:
-					// t x y z xa ya za theta
-					// 0 1 2 3  4  5  6     7
-					temp = this.result.split("\n")
-					// Iterate over every line in the file and add it to our keyframes list
-					for (line in temp) {
-						var lineSplit = temp[line].split(" ")
-						try {
-							// Set the time of the keyframe
-							var t = parseInt(lineSplit[0])
-
-							// Create the poition portion of our frame as vector
-							var position = new THREE.Vector3(parseInt(lineSplit[1]),
-																							 parseInt(lineSplit[2]),
-																							 parseInt(lineSplit[3]))
-
-							// Create the rotation portion of our frame as a quaternion
-						  var rotation = new THREE.Quaternion()
-						  rotation.setFromAxisAngle(new THREE.Vector3(parseInt(lineSplit[4]),
-																													parseInt(lineSplit[5]),
-																													parseInt(lineSplit[6])),
-																													THREE.Math.degToRad(parseInt(lineSplit[7])))
-              // Only use normalize quaternions
-							rotation.normalize()
-							var frame = new Frame(t, position, rotation)
-
-							// If the list is empty this frame is at the head
-							if(keyframe == null) {
-								keyframe = frame
-							// Else add it to the back of the list
-							} else {
-								keyframe.push(frame)
-							}
-						}catch(err) {
-							// Given a line that doesn't match the keyframe syntax
-							console.log(err.message)
-						}
-					}
-					// Initialize the frames for animation
-					currentFrame = keyframe
-
-					// Begin animation
-					animate(scene, renderer, keyframe.getLast().t, animation)
-				}
-				reader.readAsText(file)
-			}
+		loadKeyframes(fileLoader.files[0])
 	}
 
 	var animation = function (t) {
