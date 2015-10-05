@@ -1,0 +1,142 @@
+<html>
+<head>
+	<title>Assignment One: KeyFraming</title>
+	<style>
+	body { margin: 0; }
+	canvas { width: 100%; height: 100% }
+	</style>
+</head>
+<body>
+	<script src="../../js/three.min.js"></script>
+	<script src="../../js/animator.js"></script>
+	<script>
+	var scene = new THREE.Scene();
+	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+	var keyframe = null;
+	var currentFrame = null;
+
+	var renderer = new THREE.WebGLRenderer();
+	renderer.setSize( window.innerWidth, window.innerHeight );
+
+	// Add the WebGL canvas to browser's window
+	var canvas = renderer.domElement
+	document.body.appendChild( canvas );
+
+	window.addEventListener( 'resize', onWindowResize, false );
+	// Update the canvas and camera when the browser window size is modified
+	function onWindowResize(){
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+
+    renderer.setSize( window.innerWidth, window.innerHeight );
+	}
+
+	// Generate the scene
+	var geometry = new THREE.BoxGeometry( 5, 5, 5 );
+	var material = new THREE.MeshBasicMaterial( { color: 0x00aaaa } );
+	var cube = new THREE.Mesh( geometry, material );
+	scene.add( cube );
+
+	// Initialize the camera position
+	camera.position.z = 100;
+	camera.position.y = 0;
+	camera.position.x = 0;
+
+	// To enable drag and drop
+	canvas.addEventListener("dragover", function (evt) {
+		evt.preventDefault();
+	}, false);
+
+	// Loads the file and creates the Keyframes list
+	canvas.addEventListener("drop", function (evt) {
+		var files = evt.dataTransfer.files;
+		if (files.length > 0) {
+			var file = files[0];
+			// Make sure the browser supports FileReader
+			if (typeof FileReader !== "undefined") {
+				var reader = new FileReader();
+				reader.onload = function (evt) {
+					// Each file has the form:
+					// t x y z xa ya za theta
+					// 0 1 2 3  4  5  6     7
+					temp = this.result.split("\n")
+					// Iterate over every line in the file and add it to our keyframes list
+					for (line in temp) {
+						var lineSplit = temp[line].split(" ")
+						try {
+							// Set the time of the keyframe
+							var t = parseInt(lineSplit[0])
+
+							// Create the poition portion of our frame as vector
+							var position = new THREE.Vector3(parseInt(lineSplit[1]),
+																							 parseInt(lineSplit[2]),
+																							 parseInt(lineSplit[3]))
+
+							// Create the rotation portion of our frame as a quaternion
+						  var rotation = new THREE.Quaternion()
+						  rotation.setFromAxisAngle(new THREE.Vector3(parseInt(lineSplit[4]),
+																													parseInt(lineSplit[5]),
+																													parseInt(lineSplit[6])),
+																													THREE.Math.degToRad(parseInt(lineSplit[7])))
+              // Only use normalize quaternions
+							rotation.normalize()
+							var frame = new Frame(t, position, rotation)
+
+							// If the list is empty this frame is at the head
+							if(keyframe == null) {
+								keyframe = frame
+							// Else add it to the back of the list
+							} else {
+								keyframe.push(frame)
+							}
+						}catch(err) {
+							// Given a line that doesn't match the keyframe syntax
+							console.log(err.message)
+						}
+					}
+					// Initialize the frames for animation
+					currentFrame = keyframe
+
+					// Begin animation
+					animate(scene, renderer, keyframe.getLast().t, animation)
+				}
+				reader.readAsText(file)
+			}
+		}
+		evt.preventDefault();
+	}, false);
+
+	var animation = function (t) {
+
+			// If the time is past the current keyframe then slide to the next pair
+			if(currentFrame.peek().t <= t) {
+				currentFrame = currentFrame.peek()
+				console.log("===================== Keyframe Swap: " + t)
+			}
+
+			// Create a new middle frame with interpolation
+			var newFrame = currentFrame.interpolate(currentFrame.peek(), t - currentFrame.t)
+
+			console.log("X: " + newFrame.rotation.x + ", Y: " + newFrame.rotation.y +
+								", Z: " + newFrame.rotation.z + ", W: " + newFrame.rotation.w)
+
+			// Set the new position
+			cube.position.setX(newFrame.position.x)
+			cube.position.setY(newFrame.position.y)
+			cube.position.setZ(newFrame.position.z)
+
+			// The rotation information is in quaternions, needs to be converted to eulers
+			var euler = new THREE.Euler()
+			euler.setFromQuaternion(newFrame.rotation)
+
+			// Set the new rotation
+			cube.rotation.x = euler.x
+			cube.rotation.y = euler.y
+			cube.rotation.z = euler.z
+		}
+
+	</script>
+
+</body>
+</html>
