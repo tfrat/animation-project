@@ -99,7 +99,7 @@ function loadKeyframes(file) {
         temp = this.result.split("\n")
         // Iterate over every line in the file and add it to our keyframes list
         for (line in temp) {
-          var lineSplit = temp[line].split(" ")
+          var lineSplit = temp[line].trim().split(/\s+/)
           try {
             // Set the time of the keyframe
             var t = parseInt(lineSplit[0])
