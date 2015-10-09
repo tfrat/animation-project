@@ -33,14 +33,29 @@
     renderer.setSize( window.innerWidth, window.innerHeight );
 	}
 
+	// Add lighting
+	var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+	scene.add( light );
+
+	// white spotlight shining from the front, casting shadow
+	var spotLight = new THREE.SpotLight( 0xffffff );
+	spotLight.position.set( 0, 0, 100 );
+
+	spotLight.castShadow = true;
+
+	spotLight.shadowMapWidth = 1024;
+	spotLight.shadowMapHeight = 1024;
+
+	scene.add( spotLight );
+
 	// Generate the scene
 	var geometry = new THREE.BoxGeometry( 5, 5, 5 );
-	var material = new THREE.MeshBasicMaterial( { color: 0x00aaaa } );
+	var material = new THREE.MeshLambertMaterial( { color: 0x00aaaa } );
 	var cube = new THREE.Mesh( geometry, material );
 	scene.add( cube );
 
 	// Initialize the camera position
-	camera.position.z = 100;
+	camera.position.z = 60;
 	camera.position.y = 0;
 	camera.position.x = 0;
 
