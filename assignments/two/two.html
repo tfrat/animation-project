@@ -33,17 +33,41 @@
     renderer.setSize( window.innerWidth, window.innerHeight );
 	}
 
+	// white spotlight shining from the side, casting shadow
+	var spotLight = new THREE.SpotLight( 0xffffff );
+	spotLight.position.set( 100, 1000, 100 );
+
+	spotLight.castShadow = true;
+
+	spotLight.shadowMapWidth = 1024;
+	spotLight.shadowMapHeight = 1024;
+
+	spotLight.shadowCameraNear = 500;
+	spotLight.shadowCameraFar = 4000;
+	spotLight.shadowCameraFov = 30;
+
+	scene.add( spotLight );
+
+	var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+	scene.add( light );
+
 	// Generate the scene
-	var geometry = new THREE.BoxGeometry( 5, 5, 5 );
-	var material = new THREE.MeshBasicMaterial( { color: 0x00aaaa } );
-	var cube = new THREE.Mesh( geometry, material );
-	scene.add( cube );
+	var geometry = new THREE.SphereGeometry( 5, 32, 32 );
+	var material = new THREE.MeshLambertMaterial( { color: 0x00aaaa } );
+	var sphere = new THREE.Mesh( geometry, material );
+	scene.add( sphere );
 
 	// Initialize the camera position
-	camera.position.z = 100;
+	camera.position.z = 10;
 	camera.position.y = 0;
 	camera.position.x = 0;
-	
+
+	var animation = function (t) {
+			sphere.rotation.y = (THREE.Math.degToRad(t * 18))
+	}
+
+	animate(scene, renderer, 20, animation)
+
 	</script>
 </body>
 </html>
