@@ -151,17 +151,19 @@ function loadKeyframes(file) {
  */
 function animate (scene, renderer, duration, animation) {
 
-  var initialTime = Date.now()
+  var clock = new THREE.Clock()
 
   var render = function () {
     requestAnimationFrame( render )
 
-    var t = (Date.now() - initialTime) / 1000
+    var t = clock.getElapsedTime()
 
     // Stop animating once the duration has been reached
     if (t <= duration) {
       animation(t)
       renderer.render( scene, camera )
+    } else {
+      clock.stop()
     }
   }
 
