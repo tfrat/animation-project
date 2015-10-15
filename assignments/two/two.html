@@ -70,7 +70,7 @@
 	scene.add( sphere )
 
 	/* Table */
-	var tableGeometry = new THREE.PlaneBufferGeometry(16, 8)
+	var tableGeometry = new THREE.PlaneBufferGeometry(8, 4)
 	var tableTexture = THREE.ImageUtils.loadTexture('../../textures/pool_table.png')
 	tableTexture.wrapS = tableTexture.wrapT = THREE.RepeatWrapping
 	tableTexture.repeat.set(16, 16)
@@ -79,7 +79,7 @@
 	var table = new THREE.Mesh( tableGeometry, tableMaterial)
 	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
 	table.material.side = THREE.DoubleSide
-	table.receieveShadow = true
+	table.receiveShadow = true
 	table.castShadow = false
 	scene.add( table )
 
