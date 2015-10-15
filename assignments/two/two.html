@@ -12,8 +12,8 @@
 	<script src="../../js/dat.gui.min.js"></script>
 	<script src="../../js/animator.js"></script>
 	<script>
-	var scene = new THREE.Scene();
-	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+	var scene = new THREE.Scene()
+	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
 
 	// Initialize the renderer
 	var renderer = new THREE.WebGLRenderer( { antialias: true })
@@ -23,9 +23,9 @@
 
 	// Add the WebGL canvas to browser's window
 	var canvas = renderer.domElement
-	document.body.appendChild( canvas );
+	document.body.appendChild( canvas )
 
-	window.addEventListener( 'resize', onWindowResize, false );
+	window.addEventListener( 'resize', onWindowResize, false )
 	// Update the canvas and camera when the browser window size is modified
 	function onWindowResize(){
 		camera.aspect = window.innerWidth / window.innerHeight
@@ -49,7 +49,8 @@
 
 	scene.add( spotLight );
 
-	var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+	// Adds a soft white light everywhere in the scene
+	var light = new THREE.AmbientLight( 0x404040 );
 	scene.add( light );
 
 	// Generate the scene
