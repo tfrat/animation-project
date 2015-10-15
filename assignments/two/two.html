@@ -9,6 +9,7 @@
 <body>
 	<input type="file" id="fileLoader" style="display:none;" />
 	<script src="../../js/three.min.js"></script>
+	<script src="../../js/dat.gui.min.js"></script>
 	<script src="../../js/animator.js"></script>
 	<script>
 	var scene = new THREE.Scene();
@@ -93,6 +94,47 @@
 	}
 
 	animate(scene, renderer, -1, animation)
+
+	/* Holds the properties of the object */
+	var ObjectProperties = function() {
+	  this.x = 0;
+		this.y = 0;
+		this.z = 0;
+	  this.size = 1;
+	};
+
+	window.onload = function() {
+		var gui = new dat.GUI();
+		var text = new ObjectProperties();
+
+		// Handles the spatial values of the object
+		var posFolder = gui.addFolder('Position');
+		var posX = posFolder.add(text, 'x', -5, 5);
+		var posY = posFolder.add(text, 'y', -5, 5);
+		var posZ = posFolder.add(text, 'z', -5, 5);
+	  var size = gui.add(text, 'size', .1, 10);
+
+		// Listen for values changes and update the object's properties
+		posX.onChange(function(value) {
+			sphere.position.x = value
+		})
+
+		posY.onChange(function(value) {
+			sphere.position.y = value
+		})
+
+		posZ.onChange(function(value) {
+			sphere.position.z = value
+		})
+
+		size.onChange(function(value) {
+			sphere.scale.set(value, value, value)
+		})
+
+		// Sets the foler to be unfolded
+		posFolder.open()
+
+	};
 
 	</script>
 </body>
