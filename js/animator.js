@@ -159,7 +159,7 @@ function animate (scene, renderer, duration, animation) {
     var t = clock.getElapsedTime()
 
     // Stop animating once the duration has been reached
-    if (t <= duration) {
+    if (t <= duration || duration < 0) {
       animation(t)
       renderer.render( scene, camera )
     } else {
