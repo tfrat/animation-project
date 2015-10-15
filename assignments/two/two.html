@@ -14,11 +14,11 @@
 	var scene = new THREE.Scene();
 	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
-	var keyframe = null;
-	var currentFrame = null;
-
-	var renderer = new THREE.WebGLRenderer();
-	renderer.setSize( window.innerWidth, window.innerHeight );
+	// Initialize the renderer
+	var renderer = new THREE.WebGLRenderer( { antialias: true })
+	renderer.setSize( window.innerWidth, window.innerHeight )
+	renderer.shadowMap.enabled = true
+	renderer.shadowMap.type = THREE.PCFShadowMap
 
 	// Add the WebGL canvas to browser's window
 	var canvas = renderer.domElement
@@ -27,24 +27,24 @@
 	window.addEventListener( 'resize', onWindowResize, false );
 	// Update the canvas and camera when the browser window size is modified
 	function onWindowResize(){
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
+		camera.aspect = window.innerWidth / window.innerHeight
+		camera.updateProjectionMatrix()
 
-    renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.setSize( window.innerWidth, window.innerHeight )
 	}
 
-	// white spotlight shining from the side, casting shadow
-	var spotLight = new THREE.SpotLight( 0xffffff );
-	spotLight.position.set( 100, 1000, 100 );
+	// A cone of light placed directly over the pool table
+	var spotLight = new THREE.SpotLight( 0xffffff )
+	spotLight.position.set( 0, 100, 0 )
 
-	spotLight.castShadow = true;
+	spotLight.castShadow = true
 
-	spotLight.shadowMapWidth = 1024;
-	spotLight.shadowMapHeight = 1024;
+	spotLight.shadowMapWidth = 1024
+	spotLight.shadowMapHeight = 1024
 
-	spotLight.shadowCameraNear = 500;
-	spotLight.shadowCameraFar = 4000;
-	spotLight.shadowCameraFov = 30;
+	spotLight.shadowCameraNear = 10
+	spotLight.shadowCameraFar = 200
+	spotLight.shadowCameraFov = 40
 
 	scene.add( spotLight );
 
@@ -52,18 +52,44 @@
 	scene.add( light );
 
 	// Generate the scene
-	var geometry = new THREE.SphereGeometry( 5, 32, 32 );
-	var material = new THREE.MeshLambertMaterial( { color: 0x00aaaa } );
-	var sphere = new THREE.Mesh( geometry, material );
-	scene.add( sphere );
+
+	/* Sphere */
+	var sphereGeometry = new THREE.SphereGeometry( .5, 32, 32 )
+	var sphereMaterial = new THREE.MeshPhongMaterial( {
+		color: 0x00aaaa,
+		specular: 0x222222,
+		shininess: 30,
+		shading: THREE.SmoothShading
+	} )
+	var sphere = new THREE.Mesh( sphereGeometry, sphereMaterial )
+	sphere.position.set(0, .5, 0)
+	sphere.castShadow = true
+	sphere.receieveShadow = true
+	scene.add( sphere )
+
+	/* Table */
+	var tableGeometry = new THREE.PlaneBufferGeometry(16, 8)
+	var tableTexture = THREE.ImageUtils.loadTexture('../../textures/pool_table.png')
+	tableTexture.wrapS = tableTexture.wrapT = THREE.RepeatWrapping
+	tableTexture.repeat.set(16, 16)
+
+	var tableMaterial = new THREE.MeshLambertMaterial( { map: tableTexture} )
+	var table = new THREE.Mesh( tableGeometry, tableMaterial)
+	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
+	table.material.side = THREE.DoubleSide
+	table.receieveShadow = true
+	table.castShadow = false
+	scene.add( table )
 
 	// Initialize the camera position
-	camera.position.z = 10;
-	camera.position.y = 0;
-	camera.position.x = 0;
+	camera.position.z = 5;
+	camera.position.y = 1;
+	camera.position.x = 1;
+
+	camera.lookAt( table.position)
 
 	var animation = function (t) {
-			sphere.rotation.y = (THREE.Math.degToRad(t * 18))
+		sphere.rotation.y = THREE.Math.degToRad(t * 18)
 	}
 
 	animate(scene, renderer, 20, animation)
