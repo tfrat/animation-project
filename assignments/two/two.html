@@ -56,7 +56,7 @@
 	// Generate the scene
 
 	/* Sphere */
-	var sphereGeometry = new THREE.SphereGeometry( .5, 32, 32 )
+	var sphereGeometry = new THREE.SphereGeometry( .187, 32, 32 )
 	var sphereMaterial = new THREE.MeshPhongMaterial( {
 		color: 0x00aaaa,
 		specular: 0x222222,
@@ -64,7 +64,6 @@
 		shading: THREE.SmoothShading
 	} )
 	var sphere = new THREE.Mesh( sphereGeometry, sphereMaterial )
-	sphere.position.set(0, .5, 0)
 	sphere.castShadow = true
 	sphere.receieveShadow = true
 	scene.add( sphere )
@@ -75,20 +74,70 @@
 	tableTexture.wrapS = tableTexture.wrapT = THREE.RepeatWrapping
 	tableTexture.repeat.set(16, 16)
 
-	var tableMaterial = new THREE.MeshLambertMaterial( { map: tableTexture} )
+	var tableMaterial = new THREE.MeshLambertMaterial( { map: tableTexture } )
 	var table = new THREE.Mesh( tableGeometry, tableMaterial)
-	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
 	table.material.side = THREE.DoubleSide
 	table.receiveShadow = true
 	table.castShadow = false
 	scene.add( table )
 
-	// Initialize the camera position
-	camera.position.z = 5;
-	camera.position.y = 1;
-	camera.position.x = 1;
+	var longCushionGeometry = new THREE.BoxGeometry( 8, .33, .25)
+	var shortCushionGeometry = new THREE.BoxGeometry( 4.5, .33, .25 )
+	var shortCushionTexture = THREE.ImageUtils.loadTexture('../../textures/pool_cushion.png')
+	shortCushionTexture.wrapS = tableTexture.wrapT = THREE.MirroredRepeatWrapping
+	shortCushionTexture.repeat.set(16, 1)
+	shortCushionTexture.minFilter = THREE.NearestFilter
 
-	camera.lookAt( table.position)
+	var longCushionTexture = THREE.ImageUtils.loadTexture('../../textures/pool_cushion.png')
+	longCushionTexture.repeat.set(32, 1)
+	longCushionTexture.wrapS = tableTexture.wrapT = THREE.MirroredRepeatWrapping
+	longCushionTexture.minFilter = THREE.NearestFilter
+
+	var shortCushionMaterial = new THREE.MeshLambertMaterial( {
+		map: shortCushionTexture,
+		specular: 0x222222,
+		shininess: 30,
+		shading: THREE.SmoothShading } )
+	var longCushionMaterial = new THREE.MeshLambertMaterial( {
+		map: longCushionTexture,
+		specular: 0x222222,
+		shininess: 30,
+		shading: THREE.SmoothShading } )
+	var leftCushion = new THREE.Mesh( longCushionGeometry, longCushionMaterial )
+	leftCushion.receiveShadow = true
+	leftCushion.castShadow =  false
+
+	var rightCushion = leftCushion.clone()
+
+	var topCushion = new THREE.Mesh( shortCushionGeometry, shortCushionMaterial )
+	topCushion.receiveShadow = true
+	topCushion.castShadow = false
+	var bottomCushion = topCushion.clone()
+
+	scene.add( leftCushion )
+	scene.add( rightCushion )
+	scene.add( topCushion )
+	scene.add( bottomCushion )
+
+	// Initialize the object's spatial properties
+	sphere.position.set(0, .187, 0)
+
+	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
+
+
+	leftCushion.rotation.set(0, THREE.Math.degToRad(90), 0 )
+	leftCushion.position.set(-2.125, .165, 0)
+	rightCushion.position.set(2.125, .165, 0)
+	rightCushion.rotation.set(0, THREE.Math.degToRad(90), 0 )
+	topCushion.position.set(0, .165, 4.125)
+	bottomCushion.position.set(0, .165, -4.125)
+
+	// Initialize the camera position
+	camera.position.x = 1;
+	camera.position.y = 2;
+	camera.position.z = 3;
+
+	camera.lookAt( new THREE.Vector3( 0, 0, 0 ))
 
 	var animation = function (t) {
 		sphere.rotation.y = THREE.Math.degToRad(t * 18)
@@ -101,6 +150,9 @@
 	  this.x = 0;
 		this.y = 0;
 		this.z = 0;
+		this.lookAtX = 0;
+		this.lookAtY = 0;
+		this.lookAtZ = 0;
 	  this.size = 1;
 	};
 
@@ -110,22 +162,38 @@
 
 		// Handles the spatial values of the object
 		var posFolder = gui.addFolder('Position');
-		var posX = posFolder.add(text, 'x', -5, 5);
-		var posY = posFolder.add(text, 'y', -5, 5);
-		var posZ = posFolder.add(text, 'z', -5, 5);
+		var posX = posFolder.add(text, 'x', -10, 10);
+		var posY = posFolder.add(text, 'y', -10, 10);
+		var posZ = posFolder.add(text, 'z', -10, 10);
+		var lookAtFolder = gui.addFolder('Look At')
+		var lookX = lookAtFolder.add(text, 'lookAtX', -10, 10);
+		var lookY = lookAtFolder.add(text, 'lookAtY', -10, 10);
+		var lookZ = lookAtFolder.add(text, 'lookAtZ', -10, 10);
 	  var size = gui.add(text, 'size', .1, 10);
 
 		// Listen for values changes and update the object's properties
 		posX.onChange(function(value) {
-			sphere.position.x = value
+			camera.position.x = value
 		})
 
 		posY.onChange(function(value) {
-			sphere.position.y = value
+			camera.position.y = value
 		})
 
 		posZ.onChange(function(value) {
-			sphere.position.z = value
+			camera.position.z = value
+		})
+
+		lookX.onChange(function(value) {
+			camera.lookAt( new THREE.Vector3(value, text.lookAtY, text.lookAtZ))
+		})
+
+		lookY.onChange(function(value) {
+			camera.lookAt( new THREE.Vector3(text.lookAtX, value, text.lookAtZ))
+		})
+
+		lookZ.onChange(function(value) {
+			camera.lookAt( new THREE.Vector3(text.lookAtX, text.lookAtY, value))
 		})
 
 		size.onChange(function(value) {
