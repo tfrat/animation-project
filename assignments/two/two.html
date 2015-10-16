@@ -58,6 +58,7 @@
 	/* Sphere */
 	var sphereGeometry = new THREE.SphereGeometry( .187, 32, 32 )
 	var cueBallTexture = new THREE.ImageUtils.loadTexture('../../textures/balls/Ball1.jpg')
+	cueBallTexture.minFilter = THREE.LinearFilter
 	var sphereMaterial = new THREE.MeshPhongMaterial( {
 		map: cueBallTexture,
 		specular: 0x222222,
