@@ -94,12 +94,12 @@
 	longCushionTexture.wrapS = tableTexture.wrapT = THREE.MirroredRepeatWrapping
 	longCushionTexture.minFilter = THREE.NearestFilter
 
-	var shortCushionMaterial = new THREE.MeshLambertMaterial( {
+	var shortCushionMaterial = new THREE.MeshPhongMaterial( {
 		map: shortCushionTexture,
 		specular: 0x222222,
 		shininess: 30,
 		shading: THREE.SmoothShading } )
-	var longCushionMaterial = new THREE.MeshLambertMaterial( {
+	var longCushionMaterial = new THREE.MeshPhongMaterial( {
 		map: longCushionTexture,
 		specular: 0x222222,
 		shininess: 30,
