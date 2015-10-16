@@ -103,16 +103,20 @@
 		specular: 0x222222,
 		shininess: 30,
 		shading: THREE.SmoothShading } )
-	var leftCushion = new THREE.Mesh( longCushionGeometry, longCushionMaterial )
+	var leftCushion = new THREE.Mesh( longCushionGeometry, longCushionMaterial.clone() )
 	leftCushion.receiveShadow = true
 	leftCushion.castShadow =  false
 
-	var rightCushion = leftCushion.clone()
+	var rightCushion = new THREE.Mesh( longCushionGeometry, longCushionMaterial.clone() )
+	rightCushion.receiveShadow = true
+	rightCushion.castShadow = false
 
-	var topCushion = new THREE.Mesh( shortCushionGeometry, shortCushionMaterial )
+	var topCushion = new THREE.Mesh( shortCushionGeometry, shortCushionMaterial.clone() )
 	topCushion.receiveShadow = true
 	topCushion.castShadow = false
-	var bottomCushion = topCushion.clone()
+	var bottomCushion = new THREE.Mesh( shortCushionGeometry, shortCushionMaterial.clone() )
+	bottomCushion.receiveShadow = true
+	bottomCushion.castShadow = false
 
 	// Add the objects to the scene
 	scene.add( sphere )
