@@ -81,26 +81,38 @@
 	table.castShadow = false
 	scene.add( table )
 
-	var longCushionGeometry = new THREE.BoxGeometry( .25, .33, 8)
+	var longCushionGeometry = new THREE.BoxGeometry( 8, .33, .25)
 	var shortCushionGeometry = new THREE.BoxGeometry( 4.5, .33, .25 )
-	var cushionTexture = THREE.ImageUtils.loadTexture('../../textures/pool_cushion.jpg')
-	//cushionTexture.wrapS = tableTexture.wrapT = THREE.RepeatWrapping
-	cushionTexture.repeat.set(16, 16)
-	cushionTexture.minFilter = THREE.NearestFilter
+	var shortCushionTexture = THREE.ImageUtils.loadTexture('../../textures/pool_cushion.png')
+	shortCushionTexture.wrapS = tableTexture.wrapT = THREE.MirroredRepeatWrapping
+	shortCushionTexture.repeat.set(16, 1)
+	shortCushionTexture.minFilter = THREE.NearestFilter
 
-	//var cushionMaterial = new THREE.MeshLambertMaterial( { color: 0x964B00 } )
-	var cushionMaterial = new THREE.MeshLambertMaterial( { map: cushionTexture } )
-	var leftCushion = new THREE.Mesh( longCushionGeometry, cushionMaterial )
+	var longCushionTexture = THREE.ImageUtils.loadTexture('../../textures/pool_cushion.png')
+	longCushionTexture.repeat.set(32, 1)
+	longCushionTexture.wrapS = tableTexture.wrapT = THREE.MirroredRepeatWrapping
+	longCushionTexture.minFilter = THREE.NearestFilter
+
+	var shortCushionMaterial = new THREE.MeshLambertMaterial( {
+		map: shortCushionTexture,
+		specular: 0x222222,
+		shininess: 30,
+		shading: THREE.SmoothShading } )
+	var longCushionMaterial = new THREE.MeshLambertMaterial( {
+		map: longCushionTexture,
+		specular: 0x222222,
+		shininess: 30,
+		shading: THREE.SmoothShading } )
+	var leftCushion = new THREE.Mesh( longCushionGeometry, longCushionMaterial )
 	leftCushion.receiveShadow = true
 	leftCushion.castShadow =  false
 
 	var rightCushion = leftCushion.clone()
 
-	var topCushion = new THREE.Mesh( shortCushionGeometry, cushionMaterial )
+	var topCushion = new THREE.Mesh( shortCushionGeometry, shortCushionMaterial )
 	topCushion.receiveShadow = true
 	topCushion.castShadow = false
 	var bottomCushion = topCushion.clone()
-
 
 	scene.add( leftCushion )
 	scene.add( rightCushion )
@@ -112,8 +124,11 @@
 
 	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
 
+
+	leftCushion.rotation.set(0, THREE.Math.degToRad(90), 0 )
 	leftCushion.position.set(-2.125, .165, 0)
 	rightCushion.position.set(2.125, .165, 0)
+	rightCushion.rotation.set(0, THREE.Math.degToRad(90), 0 )
 	topCushion.position.set(0, .165, 4.125)
 	bottomCushion.position.set(0, .165, -4.125)
 
