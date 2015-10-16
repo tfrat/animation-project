@@ -80,13 +80,14 @@
 	table.receiveShadow = true
 	table.castShadow = false
 
-	var longCushionGeometry = new THREE.BoxGeometry( 8, .33, .25)
+	/* Cushions */
 	var shortCushionGeometry = new THREE.BoxGeometry( 4.5, .33, .25 )
 	var shortCushionTexture = THREE.ImageUtils.loadTexture('../../textures/pool_cushion.png')
 	shortCushionTexture.wrapS = tableTexture.wrapT = THREE.MirroredRepeatWrapping
 	shortCushionTexture.repeat.set(16, 1)
 	shortCushionTexture.minFilter = THREE.NearestFilter
 
+	var longCushionGeometry = new THREE.BoxGeometry( 8, .33, .25)
 	var longCushionTexture = THREE.ImageUtils.loadTexture('../../textures/pool_cushion.png')
 	longCushionTexture.repeat.set(32, 1)
 	longCushionTexture.wrapS = tableTexture.wrapT = THREE.MirroredRepeatWrapping
@@ -126,12 +127,14 @@
 
 	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
 
-
 	leftCushion.rotation.set(0, THREE.Math.degToRad(90), 0 )
 	leftCushion.position.set(-2.125, .165, 0)
+
 	rightCushion.position.set(2.125, .165, 0)
 	rightCushion.rotation.set(0, THREE.Math.degToRad(90), 0 )
+
 	topCushion.position.set(0, .165, 4.125)
+
 	bottomCushion.position.set(0, .165, -4.125)
 
 	// Initialize the camera position
@@ -141,6 +144,7 @@
 
 	camera.lookAt( new THREE.Vector3( 0, 0, 0 ))
 
+	// Rotate the ball slowly
 	var animation = function (t) {
 		sphere.rotation.y = THREE.Math.degToRad(t * 18)
 	}
