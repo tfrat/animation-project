@@ -67,7 +67,6 @@
 	var sphere = new THREE.Mesh( sphereGeometry, sphereMaterial )
 	sphere.castShadow = true
 	sphere.receieveShadow = true
-	scene.add( sphere )
 
 	/* Table */
 	var tableGeometry = new THREE.PlaneBufferGeometry(8, 4)
@@ -80,7 +79,6 @@
 	table.material.side = THREE.DoubleSide
 	table.receiveShadow = true
 	table.castShadow = false
-	scene.add( table )
 
 	var longCushionGeometry = new THREE.BoxGeometry( 8, .33, .25)
 	var shortCushionGeometry = new THREE.BoxGeometry( 4.5, .33, .25 )
@@ -115,6 +113,9 @@
 	topCushion.castShadow = false
 	var bottomCushion = topCushion.clone()
 
+	// Add the objects to the scene
+	scene.add( sphere )
+	scene.add( table )
 	scene.add( leftCushion )
 	scene.add( rightCushion )
 	scene.add( topCushion )
