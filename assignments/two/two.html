@@ -11,6 +11,7 @@
 	<script src="../../js/three.min.js"></script>
 	<script src="../../js/dat.gui.min.js"></script>
 	<script src="../../js/animator.js"></script>
+	<script src="../../js/physics.js"></script>
 	<script>
 	var scene = new THREE.Scene()
 	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
@@ -182,8 +183,27 @@
 
 	camera.lookAt( new THREE.Vector3( 0, 0, 0 ))
 
+	var velo = new Velocity(0, 0, 1, 5)
+
+	var cueBallProps = new Properties(cueBall, velo, 1, 10)
+	var oneBallProps = new Properties(oneBall, new Velocity(0, 0, 0, 0), 1, 1)
+
+
 	// Rotate the ball slowly
 	var animation = function (t) {
+		//cueBall.rotation.y = THREE.Math.degToRad(t * 18)
+		var distanceOne = cueBall.position.distanceTo(oneBall.position)
+		var distanceTwo = cueBall.position.distanceTo(twoBall.position)
+		if (distanceOne <= .187 + .187 || distanceTwo <= .187 + .187) {
+					 console.log("ITS HAPPENING")
+					 velo.direction.multiplyScalar(-1)
+				 }
+
+		cueBall.position.x += velo.direction.x * t * velo.mag
+		cueBall.position.y += velo.direction.y * t * velo.mag
+		cueBall.position.z += velo.direction.z * t * velo.mag
+
+		//oneBall.rotation.y = THREE.Math.degToRad(t * 180)
 	}
 
 	animate(scene, renderer, -1, animation)
@@ -196,7 +216,7 @@
 		this.lookAtX = 0;
 		this.lookAtY = 0;
 		this.lookAtZ = 0;
-	  this.size = 1;
+	  this.velocity = 1;
 	};
 
 	window.onload = function() {
@@ -212,7 +232,7 @@
 		var lookX = lookAtFolder.add(text, 'lookAtX', -10, 10);
 		var lookY = lookAtFolder.add(text, 'lookAtY', -10, 10);
 		var lookZ = lookAtFolder.add(text, 'lookAtZ', -10, 10);
-	  var size = gui.add(text, 'size', .1, 10);
+	  var velocity = gui.add(text, 'velocity', 0, 50);
 
 		// Listen for values changes and update the object's properties
 		posX.onChange(function(value) {
@@ -239,8 +259,8 @@
 			camera.lookAt( new THREE.Vector3(text.lookAtX, text.lookAtY, value))
 		})
 
-		size.onChange(function(value) {
-			sphere.scale.set(value, value, value)
+		velocity.onChange(function(value) {
+			velo.mag = value
 		})
 
 		// Sets the foler to be unfolded
