@@ -57,17 +57,46 @@
 
 	/* Sphere */
 	var sphereGeometry = new THREE.SphereGeometry( .187, 32, 32 )
-	var cueBallTexture = new THREE.ImageUtils.loadTexture('../../textures/balls/Ball1.jpg')
+	var cueBallTexture = new THREE.ImageUtils.loadTexture('../../textures/balls/BallCue.jpg')
 	cueBallTexture.minFilter = THREE.LinearFilter
-	var sphereMaterial = new THREE.MeshPhongMaterial( {
+	var cueBallMaterial = new THREE.MeshPhongMaterial( {
 		map: cueBallTexture,
 		specular: 0x222222,
 		shininess: 100,
 		shading: THREE.SmoothShading
 	} )
-	var sphere = new THREE.Mesh( sphereGeometry, sphereMaterial )
-	sphere.castShadow = true
-	sphere.receieveShadow = true
+
+	var cueBall = new THREE.Mesh( sphereGeometry, cueBallMaterial )
+	cueBall.castShadow = true
+	cueBall.receieveShadow = true
+
+	var oneBallTexture = new THREE.ImageUtils.loadTexture('../../textures/balls/Ball1.jpg')
+	oneBallTexture.minFilter = THREE.LinearFilter
+	var oneBallMaterial = new THREE.MeshPhongMaterial( {
+		map: oneBallTexture,
+		specular: 0x222222,
+		shininess: 100,
+		shading: THREE.SmoothShading
+	} )
+
+	var oneBall = new THREE.Mesh( sphereGeometry, oneBallMaterial )
+	oneBall.castShadow = true
+	oneBall.receieveShadow = true
+
+	var twoBallTexture = new THREE.ImageUtils.loadTexture('../../textures/balls/Ball2.jpg')
+	twoBallTexture.minFilter = THREE.LinearFilter
+	var twoBallMaterial = new THREE.MeshPhongMaterial( {
+		map: twoBallTexture,
+		specular: 0x222222,
+		shininess: 100,
+		shading: THREE.SmoothShading
+	} )
+
+	var twoBall = new THREE.Mesh( sphereGeometry, twoBallMaterial )
+	twoBall.castShadow = true
+	twoBall.receieveShadow = true
+
+	//console.log("Sphere radius: " + sphere.geometry.parameters.radius)
 
 	/* Table */
 	var tableGeometry = new THREE.PlaneBufferGeometry(8, 4)
@@ -120,7 +149,9 @@
 	bottomCushion.castShadow = false
 
 	// Add the objects to the scene
-	scene.add( sphere )
+	scene.add( cueBall )
+	scene.add( oneBall )
+	scene.add( twoBall )
 	scene.add( table )
 	scene.add( leftCushion )
 	scene.add( rightCushion )
@@ -128,7 +159,9 @@
 	scene.add( bottomCushion )
 
 	// Initialize the object's spatial properties
-	sphere.position.set(0, .187, 0)
+	cueBall.position.set(0, .187, 0)
+	oneBall.position.set(0, .187, 2)
+	twoBall.position.set(0, .187, -2)
 
 	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
 
@@ -151,7 +184,6 @@
 
 	// Rotate the ball slowly
 	var animation = function (t) {
-		sphere.rotation.y = THREE.Math.degToRad(t * 18)
 	}
 
 	animate(scene, renderer, -1, animation)
