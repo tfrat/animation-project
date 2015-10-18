@@ -11,6 +11,7 @@
 	<script src="../../js/three.min.js"></script>
 	<script src="../../js/dat.gui.min.js"></script>
 	<script src="../../js/animator.js"></script>
+	<script src="../../js/physics.js"></script>
 	<script>
 	var scene = new THREE.Scene()
 	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
@@ -57,17 +58,46 @@
 
 	/* Sphere */
 	var sphereGeometry = new THREE.SphereGeometry( .187, 32, 32 )
-	var cueBallTexture = new THREE.ImageUtils.loadTexture('../../textures/balls/Ball1.jpg')
-	var sphereMaterial = new THREE.MeshPhongMaterial( {
+	var cueBallTexture = new THREE.ImageUtils.loadTexture('../../textures/balls/BallCue.jpg')
+	cueBallTexture.minFilter = THREE.LinearFilter
+	var cueBallMaterial = new THREE.MeshPhongMaterial( {
 		map: cueBallTexture,
 		specular: 0x222222,
 		shininess: 100,
 		shading: THREE.SmoothShading
 	} )
-	var sphere = new THREE.Mesh( sphereGeometry, sphereMaterial )
-	sphere.castShadow = true
-	sphere.receieveShadow = true
-	scene.add( sphere )
+
+	var cueBall = new THREE.Mesh( sphereGeometry, cueBallMaterial )
+	cueBall.castShadow = true
+	cueBall.receieveShadow = true
+
+	var oneBallTexture = new THREE.ImageUtils.loadTexture('../../textures/balls/Ball1.jpg')
+	oneBallTexture.minFilter = THREE.LinearFilter
+	var oneBallMaterial = new THREE.MeshPhongMaterial( {
+		map: oneBallTexture,
+		specular: 0x222222,
+		shininess: 100,
+		shading: THREE.SmoothShading
+	} )
+
+	var oneBall = new THREE.Mesh( sphereGeometry, oneBallMaterial )
+	oneBall.castShadow = true
+	oneBall.receieveShadow = true
+
+	var twoBallTexture = new THREE.ImageUtils.loadTexture('../../textures/balls/Ball2.jpg')
+	twoBallTexture.minFilter = THREE.LinearFilter
+	var twoBallMaterial = new THREE.MeshPhongMaterial( {
+		map: twoBallTexture,
+		specular: 0x222222,
+		shininess: 100,
+		shading: THREE.SmoothShading
+	} )
+
+	var twoBall = new THREE.Mesh( sphereGeometry, twoBallMaterial )
+	twoBall.castShadow = true
+	twoBall.receieveShadow = true
+
+	//console.log("Sphere radius: " + sphere.geometry.parameters.radius)
 
 	/* Table */
 	var tableGeometry = new THREE.PlaneBufferGeometry(8, 4)
@@ -80,57 +110,70 @@
 	table.material.side = THREE.DoubleSide
 	table.receiveShadow = true
 	table.castShadow = false
-	scene.add( table )
 
-	var longCushionGeometry = new THREE.BoxGeometry( 8, .33, .25)
+	/* Cushions */
 	var shortCushionGeometry = new THREE.BoxGeometry( 4.5, .33, .25 )
 	var shortCushionTexture = THREE.ImageUtils.loadTexture('../../textures/pool_cushion.png')
 	shortCushionTexture.wrapS = tableTexture.wrapT = THREE.MirroredRepeatWrapping
 	shortCushionTexture.repeat.set(16, 1)
 	shortCushionTexture.minFilter = THREE.NearestFilter
 
+	var longCushionGeometry = new THREE.BoxGeometry( 8, .33, .25)
 	var longCushionTexture = THREE.ImageUtils.loadTexture('../../textures/pool_cushion.png')
 	longCushionTexture.repeat.set(32, 1)
 	longCushionTexture.wrapS = tableTexture.wrapT = THREE.MirroredRepeatWrapping
 	longCushionTexture.minFilter = THREE.NearestFilter
 
-	var shortCushionMaterial = new THREE.MeshLambertMaterial( {
+	var shortCushionMaterial = new THREE.MeshPhongMaterial( {
 		map: shortCushionTexture,
 		specular: 0x222222,
 		shininess: 30,
 		shading: THREE.SmoothShading } )
-	var longCushionMaterial = new THREE.MeshLambertMaterial( {
+	var longCushionMaterial = new THREE.MeshPhongMaterial( {
 		map: longCushionTexture,
 		specular: 0x222222,
 		shininess: 30,
 		shading: THREE.SmoothShading } )
-	var leftCushion = new THREE.Mesh( longCushionGeometry, longCushionMaterial )
+	var leftCushion = new THREE.Mesh( longCushionGeometry, longCushionMaterial.clone() )
 	leftCushion.receiveShadow = true
 	leftCushion.castShadow =  false
 
-	var rightCushion = leftCushion.clone()
+	var rightCushion = new THREE.Mesh( longCushionGeometry, longCushionMaterial.clone() )
+	rightCushion.receiveShadow = true
+	rightCushion.castShadow = false
 
-	var topCushion = new THREE.Mesh( shortCushionGeometry, shortCushionMaterial )
+	var topCushion = new THREE.Mesh( shortCushionGeometry, shortCushionMaterial.clone() )
 	topCushion.receiveShadow = true
 	topCushion.castShadow = false
-	var bottomCushion = topCushion.clone()
+	var bottomCushion = new THREE.Mesh( shortCushionGeometry, shortCushionMaterial.clone() )
+	bottomCushion.receiveShadow = true
+	bottomCushion.castShadow = false
 
+	// Add the objects to the scene
+	scene.add( cueBall )
+	scene.add( oneBall )
+	scene.add( twoBall )
+	scene.add( table )
 	scene.add( leftCushion )
 	scene.add( rightCushion )
 	scene.add( topCushion )
 	scene.add( bottomCushion )
 
 	// Initialize the object's spatial properties
-	sphere.position.set(0, .187, 0)
+	cueBall.position.set(0, .187, 0)
+	oneBall.position.set(0, .187, 2)
+	twoBall.position.set(0, .187, -2)
 
 	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
 
-
 	leftCushion.rotation.set(0, THREE.Math.degToRad(90), 0 )
 	leftCushion.position.set(-2.125, .165, 0)
+
 	rightCushion.position.set(2.125, .165, 0)
 	rightCushion.rotation.set(0, THREE.Math.degToRad(90), 0 )
+
 	topCushion.position.set(0, .165, 4.125)
+
 	bottomCushion.position.set(0, .165, -4.125)
 
 	// Initialize the camera position
@@ -140,8 +183,27 @@
 
 	camera.lookAt( new THREE.Vector3( 0, 0, 0 ))
 
+	var velo = new Velocity(0, 0, 1, 5)
+
+	var cueBallProps = new Properties(cueBall, velo, 1, 10)
+	var oneBallProps = new Properties(oneBall, new Velocity(0, 0, 0, 0), 1, 1)
+
+
+	// Rotate the ball slowly
 	var animation = function (t) {
-		sphere.rotation.y = THREE.Math.degToRad(t * 18)
+		//cueBall.rotation.y = THREE.Math.degToRad(t * 18)
+		var distanceOne = cueBall.position.distanceTo(oneBall.position)
+		var distanceTwo = cueBall.position.distanceTo(twoBall.position)
+		if (distanceOne <= .187 + .187 || distanceTwo <= .187 + .187) {
+					 console.log("ITS HAPPENING")
+					 velo.direction.multiplyScalar(-1)
+				 }
+
+		cueBall.position.x += velo.direction.x * t * velo.mag
+		cueBall.position.y += velo.direction.y * t * velo.mag
+		cueBall.position.z += velo.direction.z * t * velo.mag
+
+		//oneBall.rotation.y = THREE.Math.degToRad(t * 180)
 	}
 
 	animate(scene, renderer, -1, animation)
@@ -154,7 +216,7 @@
 		this.lookAtX = 0;
 		this.lookAtY = 0;
 		this.lookAtZ = 0;
-	  this.size = 1;
+	  this.velocity = 1;
 	};
 
 	window.onload = function() {
@@ -170,7 +232,7 @@
 		var lookX = lookAtFolder.add(text, 'lookAtX', -10, 10);
 		var lookY = lookAtFolder.add(text, 'lookAtY', -10, 10);
 		var lookZ = lookAtFolder.add(text, 'lookAtZ', -10, 10);
-	  var size = gui.add(text, 'size', .1, 10);
+	  var velocity = gui.add(text, 'velocity', 0, 50);
 
 		// Listen for values changes and update the object's properties
 		posX.onChange(function(value) {
@@ -197,8 +259,8 @@
 			camera.lookAt( new THREE.Vector3(text.lookAtX, text.lookAtY, value))
 		})
 
-		size.onChange(function(value) {
-			sphere.scale.set(value, value, value)
+		velocity.onChange(function(value) {
+			velo.mag = value
 		})
 
 		// Sets the foler to be unfolded
