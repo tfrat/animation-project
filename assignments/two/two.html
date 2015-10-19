@@ -183,27 +183,32 @@
 
 	camera.lookAt( new THREE.Vector3( 0, 0, 0 ))
 
-	var velo = new Velocity(0, 0, 1, 5)
+	var balls = []
 
-	var cueBallProps = new Properties(cueBall, velo, 1, 10)
-	var oneBallProps = new Properties(oneBall, new Velocity(0, 0, 0, 0), 1, 1)
+	balls.push(new PhysicsObject(cueBall, new THREE.Vector3(0, 0, 5), 1, 10))
+	balls.push(new PhysicsObject(oneBall, new THREE.Vector3(0, 0, 0), 1, 1))
+	balls.push(new PhysicsObject(twoBall, new THREE.Vector3(0, 0, 0), 1, 1))
+
+	function detectCollisions() {
+		for (x in balls) {
+			if (x > 0) {
+				if (balls[0].object.position.distanceTo(balls[x].object.position) <= .187 + .187) {
+					balls[0].tVelocity.multiplyScalar(-1)
+				}
+			}
+		}
+	}
 
 
 	// Rotate the ball slowly
 	var animation = function (t) {
 		//cueBall.rotation.y = THREE.Math.degToRad(t * 18)
-		var distanceOne = cueBall.position.distanceTo(oneBall.position)
-		var distanceTwo = cueBall.position.distanceTo(twoBall.position)
-		if (distanceOne <= .187 + .187 || distanceTwo <= .187 + .187) {
-					 console.log("ITS HAPPENING")
-					 velo.direction.multiplyScalar(-1)
-				 }
 
-		cueBall.position.x += velo.direction.x * t * velo.mag
-		cueBall.position.y += velo.direction.y * t * velo.mag
-		cueBall.position.z += velo.direction.z * t * velo.mag
+		// Collision detection
+		detectCollisions()
 
-		//oneBall.rotation.y = THREE.Math.degToRad(t * 180)
+		// Force application
+		balls[0].applyForces(t)
 	}
 
 	animate(scene, renderer, -1, animation)
@@ -260,11 +265,8 @@
 		})
 
 		velocity.onChange(function(value) {
-			velo.mag = value
+			balls[0].tVelocity.multiplyScalar(value)
 		})
-
-		// Sets the foler to be unfolded
-		posFolder.open()
 
 	};
 
