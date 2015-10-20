@@ -227,9 +227,6 @@
 	  this.x = 0;
 		this.y = 0;
 		this.z = 0;
-		this.lookAtX = 0;
-		this.lookAtY = 0;
-		this.lookAtZ = 0;
 	  this.mass = 1;
 	};
 
@@ -238,39 +235,23 @@
 		var text = new ObjectProperties();
 
 		// Handles the spatial values of the object
-		var posFolder = gui.addFolder('Position');
-		var posX = posFolder.add(text, 'x', -10, 10);
-		var posY = posFolder.add(text, 'y', -10, 10);
-		var posZ = posFolder.add(text, 'z', -10, 10);
-		var lookAtFolder = gui.addFolder('Look At')
-		var lookX = lookAtFolder.add(text, 'lookAtX', -10, 10);
-		var lookY = lookAtFolder.add(text, 'lookAtY', -10, 10);
-		var lookZ = lookAtFolder.add(text, 'lookAtZ', -10, 10);
-	  var mass = gui.add(text, 'mass', 0, 50);
+		var posFolder = gui.addFolder('Acceleration');
+		var accX = posFolder.add(text, 'x', -2, 2).step(.25);
+		var accY = posFolder.add(text, 'y', -2, 2);
+		var accZ = posFolder.add(text, 'z', -2, 2);
+	  var mass = gui.add(text, 'mass', 1, 10);
 
 		// Listen for values changes and update the object's properties
-		posX.onChange(function(value) {
-			camera.position.x = value
+		accX.onChange(function(value) {
+			balls[0].acceleration.x = value
 		})
 
-		posY.onChange(function(value) {
-			camera.position.y = value
+		accY.onChange(function(value) {
+			balls[0].acceleration.y = value
 		})
 
-		posZ.onChange(function(value) {
-			camera.position.z = value
-		})
-
-		lookX.onChange(function(value) {
-			camera.lookAt( new THREE.Vector3(value, text.lookAtY, text.lookAtZ))
-		})
-
-		lookY.onChange(function(value) {
-			camera.lookAt( new THREE.Vector3(text.lookAtX, value, text.lookAtZ))
-		})
-
-		lookZ.onChange(function(value) {
-			camera.lookAt( new THREE.Vector3(text.lookAtX, text.lookAtY, value))
+		accZ.onChange(function(value) {
+			balls[0].acceleration.z = value
 		})
 
 		mass.onChange(function(value) {
