@@ -20,7 +20,7 @@ class PhysicsObject {
       this.object.position.addScaledVector(this.velocity, t)
       this.momentum.addScaledVector(this.force, t)
       this.velocity = this.momentum.clone().multiplyScalar(1/this.mass)
-      //console.log(this.velocity.length())
+
   }
   }
 
