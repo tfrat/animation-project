@@ -58,6 +58,7 @@
 
 	// Object geometric constants (in meters)
 	var ballRadius = .057
+	var ballMass = .17
 	var tableHeight = 2.438
 	var tableWidth = 1.298
 	var shortCushionDimension = new THREE.Vector3( 1.448, .1, .076)
@@ -201,15 +202,15 @@
 	var balls = []
 
 	balls.push(new PhysicsObject(cueBall,
-															 1,
+															 ballMass,
 															 new THREE.Vector3(0, 0, 0),
 															 new THREE.Vector3(0, 0, 0)))
 	balls.push(new PhysicsObject(oneBall,
-															 1,
+															 ballMass,
 															 new THREE.Vector3(0, 0, 0),
 															 new THREE.Vector3(0, 0, 0)))
 	balls.push(new PhysicsObject(twoBall,
-															 1,
+															 ballMass,
 															 new THREE.Vector3(0, 0, 0),
 															 new THREE.Vector3(0, 0, 0)))
 
