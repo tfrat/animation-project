@@ -12,9 +12,10 @@ class PhysicsObject {
   getPosition() {
     return this.object.position
   }
-
+  updateForces( t ) {
+    this.force = this.acceleration.clone().multiplyScalar(this.mass)
+  }
   applyForces( t ) {
-      this.force = this.acceleration.clone().multiplyScalar(this.mass)
 
       this.object.position.addScaledVector(this.velocity, t)
       this.momentum.addScaledVector(this.force, t)
