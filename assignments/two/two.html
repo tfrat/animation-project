@@ -201,8 +201,8 @@
 	function detectCollisions() {
 		for (x in balls) {
 			if (x > 0) {
-				if (balls[0].object.position.distanceTo(balls[x].object.position) <= .187 + .187) {
-					balls[0].tVelocity.multiplyScalar(-1)
+				if (balls[0].object.position.distanceTo(balls[x].object.position) <= .374) {
+					balls[0].acceleration.multiplyScalar(-1)
 				}
 			}
 		}
