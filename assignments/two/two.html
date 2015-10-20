@@ -105,8 +105,6 @@
 	twoBall.castShadow = true
 	twoBall.receieveShadow = true
 
-	//console.log("Sphere radius: " + sphere.geometry.parameters.radius)
-
 	/* Table */
 	var tableGeometry = new THREE.PlaneBufferGeometry(tableHeight, tableWidth)
 	var tableTexture = THREE.ImageUtils.loadTexture('../../textures/pool_table.png')
@@ -228,7 +226,6 @@
 
 	// Rotate the ball slowly
 	var animation = function (t) {
-		//cueBall.rotation.y = THREE.Math.degToRad(t * 18)
 
 		// Collision detection
 		detectCollisions()
