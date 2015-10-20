@@ -185,9 +185,18 @@
 
 	var balls = []
 
-	balls.push(new PhysicsObject(cueBall, new THREE.Vector3(0, 0, 5), 1, 10))
-	balls.push(new PhysicsObject(oneBall, new THREE.Vector3(0, 0, 0), 1, 1))
-	balls.push(new PhysicsObject(twoBall, new THREE.Vector3(0, 0, 0), 1, 1))
+	balls.push(new PhysicsObject(cueBall,
+															 1,
+															 new THREE.Vector3(0, 0, 0),
+															 new THREE.Vector3(0, 0, .1)))
+	balls.push(new PhysicsObject(oneBall,
+															 1,
+															 new THREE.Vector3(0, 0, 0),
+															 new THREE.Vector3(0, 0, 0)))
+	balls.push(new PhysicsObject(twoBall,
+															 1,
+															 new THREE.Vector3(0, 0, 0),
+															 new THREE.Vector3(0, 0, 0)))
 
 	function detectCollisions() {
 		for (x in balls) {

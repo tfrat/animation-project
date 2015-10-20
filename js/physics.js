@@ -1,15 +1,26 @@
 
 class PhysicsObject {
-  constructor(object, velocity, mass, restitution) {
+  constructor(object, mass, velocity, acceleration) {
     this.object = object
-    this.tVelocity = velocity
     this.mass = mass
-    this.restitution = restitution
+    this.velocity = velocity
+    this.acceleration = acceleration
+    this.force = acceleration.clone().multiplyScalar(mass)
+    this.momentum = velocity.clone().multiplyScalar(mass)
   }
 
-  applyForces( t )
-  {
-      this.object.position.addScaledVector(this.tVelocity, t)
+  getPosition() {
+    return this.object.position
+  }
+
+  applyForces( t ) {
+      this.force = this.acceleration.clone().multiplyScalar(this.mass)
+
+      this.object.position.addScaledVector(this.velocity, t)
+      this.momentum.addScaledVector(this.force, t)
+      this.velocity = this.momentum.clone().multiplyScalar(1/this.mass)
+      //console.log(this.velocity.length())
+  }
   }
 
 }
