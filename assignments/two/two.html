@@ -37,14 +37,14 @@
 
 	// A cone of light placed directly over the pool table
 	var spotLight = new THREE.SpotLight( 0xffffff )
-	spotLight.position.set( 0, 100, 0 )
+	spotLight.position.set( 0, 10, 0 )
 
 	spotLight.castShadow = true
 
 	spotLight.shadowMapWidth = 1024
 	spotLight.shadowMapHeight = 1024
 
-	spotLight.shadowCameraNear = 10
+	spotLight.shadowCameraNear = 1
 	spotLight.shadowCameraFar = 200
 	spotLight.shadowCameraFov = 40
 
