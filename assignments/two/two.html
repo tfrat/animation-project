@@ -37,14 +37,14 @@
 
 	// A cone of light placed directly over the pool table
 	var spotLight = new THREE.SpotLight( 0xffffff )
-	spotLight.position.set( 0, 100, 0 )
+	spotLight.position.set( 0, 10, 0 )
 
 	spotLight.castShadow = true
 
 	spotLight.shadowMapWidth = 1024
 	spotLight.shadowMapHeight = 1024
 
-	spotLight.shadowCameraNear = 10
+	spotLight.shadowCameraNear = 1
 	spotLight.shadowCameraFar = 200
 	spotLight.shadowCameraFov = 40
 
@@ -56,8 +56,17 @@
 
 	// Generate the scene
 
+	// Object geometric constants (in meters)
+	var ballRadius = .057
+	var ballMass = .17
+	var tableHeight = 2.438
+	var tableWidth = 1.298
+	var shortCushionDimension = new THREE.Vector3( 1.448, .1, .076)
+	var longCushionDimension = new THREE.Vector3( 2.438, .1, .076)
+
 	/* Sphere */
-	var sphereGeometry = new THREE.SphereGeometry( .187, 32, 32 )
+
+	var sphereGeometry = new THREE.SphereGeometry( ballRadius, 32, 32 )
 	var cueBallTexture = new THREE.ImageUtils.loadTexture('../../textures/balls/BallCue.jpg')
 	cueBallTexture.minFilter = THREE.LinearFilter
 	var cueBallMaterial = new THREE.MeshPhongMaterial( {
@@ -97,10 +106,8 @@
 	twoBall.castShadow = true
 	twoBall.receieveShadow = true
 
-	//console.log("Sphere radius: " + sphere.geometry.parameters.radius)
-
 	/* Table */
-	var tableGeometry = new THREE.PlaneBufferGeometry(8, 4)
+	var tableGeometry = new THREE.PlaneBufferGeometry(tableHeight, tableWidth)
 	var tableTexture = THREE.ImageUtils.loadTexture('../../textures/pool_table.png')
 	tableTexture.wrapS = tableTexture.wrapT = THREE.RepeatWrapping
 	tableTexture.repeat.set(16, 16)
@@ -112,13 +119,17 @@
 	table.castShadow = false
 
 	/* Cushions */
-	var shortCushionGeometry = new THREE.BoxGeometry( 4.5, .33, .25 )
+	var shortCushionGeometry = new THREE.BoxGeometry( shortCushionDimension.x,
+		shortCushionDimension.y,
+		shortCushionDimension.z )
 	var shortCushionTexture = THREE.ImageUtils.loadTexture('../../textures/pool_cushion.png')
 	shortCushionTexture.wrapS = tableTexture.wrapT = THREE.MirroredRepeatWrapping
 	shortCushionTexture.repeat.set(16, 1)
 	shortCushionTexture.minFilter = THREE.NearestFilter
 
-	var longCushionGeometry = new THREE.BoxGeometry( 8, .33, .25)
+	var longCushionGeometry = new THREE.BoxGeometry( longCushionDimension.x,
+		longCushionDimension.y,
+		longCushionDimension.z )
 	var longCushionTexture = THREE.ImageUtils.loadTexture('../../textures/pool_cushion.png')
 	longCushionTexture.repeat.set(32, 1)
 	longCushionTexture.wrapS = tableTexture.wrapT = THREE.MirroredRepeatWrapping
@@ -160,41 +171,46 @@
 	scene.add( bottomCushion )
 
 	// Initialize the object's spatial properties
-	cueBall.position.set(0, .187, 0)
-	oneBall.position.set(0, .187, 2)
-	twoBall.position.set(0, .187, -2)
+	cueBall.position.set(0, ballRadius, 0)
+	oneBall.position.set(0, ballRadius, .5)
+	twoBall.position.set(0, ballRadius, -.5)
 
 	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
 
+	var longCushionXOffset = (tableWidth + longCushionDimension.z)/2
+	var cusionYOffset = longCushionDimension.y/2
+
 	leftCushion.rotation.set(0, THREE.Math.degToRad(90), 0 )
-	leftCushion.position.set(-2.125, .165, 0)
+	leftCushion.position.set(-longCushionXOffset, cusionYOffset, 0)
 
-	rightCushion.position.set(2.125, .165, 0)
 	rightCushion.rotation.set(0, THREE.Math.degToRad(90), 0 )
+	rightCushion.position.set(longCushionXOffset, cusionYOffset, 0)
 
-	topCushion.position.set(0, .165, 4.125)
+	var shortCushionZOffset = (tableHeight + shortCushionDimension.z)/2
 
-	bottomCushion.position.set(0, .165, -4.125)
+	topCushion.position.set(0, cusionYOffset, shortCushionZOffset)
+
+	bottomCushion.position.set(0, cusionYOffset, -shortCushionZOffset)
 
 	// Initialize the camera position
-	camera.position.x = 1;
-	camera.position.y = 2;
-	camera.position.z = 3;
+	camera.position.x = -.5;
+	camera.position.y = 1;
+	camera.position.z = -1.5;
 
 	camera.lookAt( new THREE.Vector3( 0, 0, 0 ))
 
 	var balls = []
 
 	balls.push(new PhysicsObject(cueBall,
-															 1,
+															 ballMass,
 															 new THREE.Vector3(0, 0, 0),
-															 new THREE.Vector3(0, 0, .1)))
+															 new THREE.Vector3(0, 0, 0)))
 	balls.push(new PhysicsObject(oneBall,
-															 1,
+															 ballMass,
 															 new THREE.Vector3(0, 0, 0),
 															 new THREE.Vector3(0, 0, 0)))
 	balls.push(new PhysicsObject(twoBall,
-															 1,
+															 ballMass,
 															 new THREE.Vector3(0, 0, 0),
 															 new THREE.Vector3(0, 0, 0)))
 
@@ -211,7 +227,6 @@
 
 	// Rotate the ball slowly
 	var animation = function (t) {
-		//cueBall.rotation.y = THREE.Math.degToRad(t * 18)
 
 		// Collision detection
 		detectCollisions()
