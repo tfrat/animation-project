@@ -162,8 +162,8 @@
 
 	// Add the objects to the scene
 	scene.add( cueBall )
-	scene.add( oneBall )
-	scene.add( twoBall )
+	//scene.add( oneBall )
+	//scene.add( twoBall )
 	scene.add( table )
 	scene.add( leftCushion )
 	scene.add( rightCushion )
@@ -171,8 +171,8 @@
 	scene.add( bottomCushion )
 
 	// Initialize the object's spatial properties
-	cueBall.position.set(0, ballRadius, 0)
-	oneBall.position.set(0, ballRadius, .5)
+	cueBall.position.set(0, ballRadius, -1)
+	oneBall.position.set(0, ballRadius, -1)
 	twoBall.position.set(0, ballRadius, -.5)
 
 	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
