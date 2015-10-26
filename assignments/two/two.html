@@ -203,16 +203,14 @@
 
 	balls.push(new PhysicsObject(cueBall,
 															 ballMass,
-															 new THREE.Vector3(0, 0, 0),
-															 new THREE.Vector3(0, 0, 0)))
-	balls.push(new PhysicsObject(oneBall,
+															 new THREE.Vector3(0, 0, .02)))
+	/*balls.push(new PhysicsObject(oneBall,
 															 ballMass,
-															 new THREE.Vector3(0, 0, 0),
 															 new THREE.Vector3(0, 0, 0)))
 	balls.push(new PhysicsObject(twoBall,
 															 ballMass,
 															 new THREE.Vector3(0, 0, 0),
-															 new THREE.Vector3(0, 0, 0)))
+															 new THREE.Vector3(0, 0, 0)))*/
 
 	function detectCollisions() {
 		for (x in balls) {
@@ -233,7 +231,6 @@
 
 		// Force application
 		balls[0].updateForces(t)
-		balls[0].applyForces(t)
 	}
 
 	animate(scene, renderer, -1, animation)
