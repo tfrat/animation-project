@@ -25,3 +25,7 @@ class PhysicsObject {
   }
 
 }
+
+function printVector(s, v) {
+    console.log(s + ": ( "+v.x+", "+v.y+", "+v.z+")")
+}
