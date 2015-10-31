@@ -162,8 +162,8 @@
 
 	// Add the objects to the scene
 	scene.add( cueBall )
-	scene.add( oneBall )
-	scene.add( twoBall )
+	//scene.add( oneBall )
+	//scene.add( twoBall )
 	scene.add( table )
 	scene.add( leftCushion )
 	scene.add( rightCushion )
@@ -171,8 +171,8 @@
 	scene.add( bottomCushion )
 
 	// Initialize the object's spatial properties
-	cueBall.position.set(0, ballRadius, 0)
-	oneBall.position.set(0, ballRadius, .5)
+	cueBall.position.set(0, ballRadius, -1)
+	oneBall.position.set(0, ballRadius, -1)
 	twoBall.position.set(0, ballRadius, -.5)
 
 	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
@@ -203,16 +203,14 @@
 
 	balls.push(new PhysicsObject(cueBall,
 															 ballMass,
-															 new THREE.Vector3(0, 0, 0),
 															 new THREE.Vector3(0, 0, 0)))
-	balls.push(new PhysicsObject(oneBall,
+	/*balls.push(new PhysicsObject(oneBall,
 															 ballMass,
-															 new THREE.Vector3(0, 0, 0),
 															 new THREE.Vector3(0, 0, 0)))
 	balls.push(new PhysicsObject(twoBall,
 															 ballMass,
 															 new THREE.Vector3(0, 0, 0),
-															 new THREE.Vector3(0, 0, 0)))
+															 new THREE.Vector3(0, 0, 0)))*/
 
 	function detectCollisions() {
 		for (x in balls) {
@@ -229,50 +227,57 @@
 	var animation = function (t) {
 
 		// Collision detection
-		detectCollisions()
+		//detectCollisions()
 
 		// Force application
-		balls[0].updateForces(t)
-		balls[0].applyForces(t)
+		return balls[0].updateForces(t)
 	}
 
-	animate(scene, renderer, -1, animation)
+	// Allows the user to use the file chooser instead of clicking.
+	canvas.addEventListener("click", function () {
+		console.log("Clicked")
+		balls[0].inMotion = true
+		balls[0].setForce(new THREE.Vector3(text.x, text.y, text.z))
+		animate(scene, renderer, animation)
+	});
 
 	/* Holds the properties of the object */
 	var ObjectProperties = function() {
 	  this.x = 0;
 		this.y = 0;
 		this.z = 0;
-	  this.mass = 1;
+	  this.kinCoef = 1;
 	};
+	var text = new ObjectProperties();
 
 	window.onload = function() {
 		var gui = new dat.GUI();
-		var text = new ObjectProperties();
 
 		// Handles the spatial values of the object
-		var posFolder = gui.addFolder('Acceleration');
-		var accX = posFolder.add(text, 'x', -2, 2).step(.25);
-		var accY = posFolder.add(text, 'y', -2, 2);
-		var accZ = posFolder.add(text, 'z', -2, 2);
-	  var mass = gui.add(text, 'mass', 1, 10);
+		var posFolder = gui.addFolder('Force')
+		var accX = posFolder.add(text, 'x', -.1, .1)
+		var accY = posFolder.add(text, 'y', -.1, .1)
+		var accZ = posFolder.add(text, 'z', -.1, .1)
+	  var kin = gui.add(text, 'kinCoef', 0, 1)
 
 		// Listen for values changes and update the object's properties
 		accX.onChange(function(value) {
-			balls[0].acceleration.x = value
+			balls[0].force.x = value
 		})
 
 		accY.onChange(function(value) {
-			balls[0].acceleration.y = value
+			balls[0].force.y = value
 		})
 
 		accZ.onChange(function(value) {
-			balls[0].acceleration.z = value
+			balls[0].force.z = value
 		})
 
-		mass.onChange(function(value) {
-			balls[0].mass = value
+		kin.onChange(function(value) {
+			balls[0].setKineticCoef(value)
 		})
+
+		posFolder.open()
 
 	};
 
