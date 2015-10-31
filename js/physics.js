@@ -16,9 +16,22 @@ class PhysicsObject {
     this.kineticForce = this.normal * this.uk
   }
 
+  setKineticCoef(value) {
+    this.uk = value
+    this.kineticForce = this.normal * this.uk
+  }
+
   getPosition() {
     return this.object.position
   }
+
+  setForce(force) {
+    printVector("Set force", force )
+    this.force = force
+    this.momentum = this.force.clone().multiplyScalar(1/this.mass)
+    this.velocity = this.momentum.clone().multiplyScalar(1/this.mass)
+  }
+
   updateForces( t ) {
     if(this.inMotion) {
       var fn = this.force.clone().normalize()
@@ -28,6 +41,8 @@ class PhysicsObject {
 
       this.applyForces(t)
     }
+
+    return this.inMotion
   }
 
   applyForces( t ) {
@@ -40,6 +55,7 @@ class PhysicsObject {
 
         if(delta.length() > this.momentum.length()){
           this.inMotion = false
+          this.setForce(new THREE.Vector3(0,0,0))
         } else {
           this.momentum.add(delta)
           this.velocity = this.momentum.clone().multiplyScalar(1/this.mass)

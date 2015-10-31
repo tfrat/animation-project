@@ -149,23 +149,25 @@ function loadKeyframes(file) {
 * @param animation - Function that modifies the scene for the animation.
 *                    Needs to take time as a parameter.
 */
-function animate (scene, renderer, duration, animation) {
+function animate (scene, renderer, animation) {
 
   var clock = new THREE.Clock()
 
-  var render = function () {
-    requestAnimationFrame( render )
+  var renderAgain = true
 
-    var t = clock.getDelta()//clock.getElapsedTime()
+  var render = function () {
+    if(renderAgain) {
+      requestAnimationFrame( render )
+    }
+    
+    var t = clock.getDelta()
 
     // Stop animating once the duration has been reached
-    if (t <= duration || duration < 0) {
-      animation(t)
-      renderer.render( scene, camera )
-    } else {
-      clock.stop()
-    }
+
+    renderAgain = animation(t)
+    renderer.render( scene, camera )
+    console.log("Rendering...")
   }
 
-  render();
+  render()
 }
