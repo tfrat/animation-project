@@ -9,6 +9,7 @@
 <body>
 	<input type="file" id="fileLoader" style="display:none;" />
 	<script src="../../js/three.min.js"></script>
+	<script src="../../js/dat.gui.min.js"></script>
 	<script src="animator.js"></script>
 	<script src="particle.js"></script>
 	<script src="worker.js"></script>
@@ -41,6 +42,13 @@
 	function randomRange(start, end) {
 		return (Math.random() * (end - start)) + start
 	}
+
+
+		var velocity = new THREE.Vector3(0, 0, 0)
+		var speed = 5
+		var angle = 30
+		var lifetime = 2
+		var amount = 10
 
 
 	var workerListener = function(e) {
@@ -98,16 +106,13 @@
 		return mat
 	}
 
-	var upper = 30
-	var lower = -30
-
 	function randomizedVelocity(velo) {
 
 		var result = velo.clone().normalize()
-		result.multiplyScalar(randomRange(1,5))
-		var xRot = genXMatrix(lower, upper)
-		var yRot = genYMatrix(lower, upper)
-		var zRot = genZMatrix(lower, upper)
+		result.multiplyScalar(randomRange(1, speed))
+		var xRot = genXMatrix(-angle, angle)
+		var yRot = genYMatrix(-angle, angle)
+		var zRot = genZMatrix(-angle, angle)
 		result.applyMatrix3(xRot)
 		result.applyMatrix3(yRot)
 		result.applyMatrix3(zRot)
@@ -116,7 +121,6 @@
 		return result
 	}
 
-	var velocity = new THREE.Vector3(0, 0, 0)
 
 	function generateTrailingParticle(id, particle, worker) {
 		particle.position.x = leader.position.x
@@ -125,14 +129,14 @@
 
 		var velo = randomizedVelocity(velocity)
 
-		worker.postMessage({'id' : id, 'lifetime' : randomRange(.5, 1),
+		worker.postMessage({'id' : id, 'lifetime' : randomRange(.5, lifetime),
 		'pos' : { 'x' : particle.position.x, 'y' : particle.position.y, 'z' : particle.position.z },
 		'vel' : { 'x' : velo.x, 'y' : velo.y, 'z' : velo.z }})
 	}
 	var tail = {}
 
 	var timeout = function initilaizeTail() {
-		for (var i = 0; i < 10; i++) {
+		for (var i = 0; i < amount; i++) {
 			tail[i] = makeParticle(.02, 0x0000ff)
 			scene.add( tail[i] )
 			var worker = new Worker('worker.js')
@@ -225,7 +229,52 @@ var animation = function (t) {
 	return true
 }
 
+/* Holds the properties of the object */
+var ObjectProperties = function() {
+	this.speed = speed
+	this.lifetime = lifetime
+	this.amount = amount
+	this.angle = angle
+};
+var text = new ObjectProperties();
+
+window.onload = function() {
+	var gui = new dat.GUI();
+
+	// Handles the spatial values of the object
+	var speedHandler = gui.add(text, 'speed', 1, 5)
+
+	speedHandler.onChange(function(value) {
+		speed = value
+	})
+
+	var lifetimeHandler = gui.add(text, 'lifetime', .5, 5)
+
+	lifetimeHandler.onChange(function(value) {
+		lifetime = value
+	})
+
+	var amountHandler = gui.add(text, 'amount', 0, 10)
+
+	amountHandler.onChange(function(value) {
+		amount = value
+	})
+
+	var angleHandler = gui.add(text, 'angle', 0, 360)
+
+	angleHandler.onChange(function(value) {
+		angle = value
+	})
+
+	posFolder.open()
+
+};
+
+
+
 animate(scene, renderer, animation)
+
+
 
 
 </script>
