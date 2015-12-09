@@ -14,10 +14,10 @@
 	<script src="worker.js"></script>
 	<script>
 
-	var keyframe = null;
-	var currentFrame = null;
 	var scene = new THREE.Scene();
 	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+	var go = true
 
 	var renderer = new THREE.WebGLRenderer();
 	renderer.setSize( window.innerWidth, window.innerHeight );
@@ -58,7 +58,13 @@
 			tail[id].position.z = pos.z
 			break
 			case 'terminate':
-			generateTrailingParticle(id, tail[id], e.target)
+			if(go) {
+				generateTrailingParticle(id, tail[id], e.target)
+			} else {
+				scene.remove(tail[id])
+				delete tail[id]
+				e.target.terminate
+			}
 			break
 
 
@@ -125,7 +131,7 @@
 	}
 
 	var tail = {}
-	
+
 	for (var i = 0; i < 10; i++) {
 		tail[i] = makeParticle(.02, 0x0000ff)
 		scene.add( tail[i] )
@@ -192,10 +198,6 @@ keyframes.push(new Frame(5, new THREE.Vector3(-1, -1, 0)))
 keyframes.push(new Frame(6, new THREE.Vector3(-1, 0, 0)))
 keyframes.push(new Frame(7, new THREE.Vector3(0, 0, 0)))
 
-
-
-
-
 var currentFrame = keyframes
 var animation = function (t) {
 	if(currentFrame.peek() != null) {
@@ -213,6 +215,9 @@ var animation = function (t) {
 		leader.position.setZ(newFrame.position.z)
 
 	}
+
+	go = currentFrame.peek() != null
+
 	return true
 }
 
