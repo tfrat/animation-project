@@ -51,6 +51,7 @@
 			console.log('Worker #' + id + ": " + e.data.msg)
 			break
 			case 'update':
+
 			var pos = e.data.pos
 			tail[id].position.x = pos.x
 			tail[id].position.y = pos.y
@@ -58,68 +59,105 @@
 			break
 			case 'terminate':
 			scene.remove(tail[id])
+			delete tail[id]
+			//generateTrailingParticle(id)
 			break
 
 
 		}
 	}
 
-	var tail = {}
+	function genXMatrix(lower, upper) {
+		var mat = new THREE.Matrix3()
+		var angle = THREE.Math.degToRad(randomRange(lower, upper))
+		var cos = Math.cos(angle)
+		var sin = Math.sin(angle)
+		mat.set(1, 0, 0, 0, cos, -sin, 0, sin, cos)
+		return mat
+	}
 
-	for (var i = 0; i < 10; i++) {
-		tail[i] = makeParticle(.01, 0x0000ff)
-		tail[i].position.x = randomRange(-1, 1)
-		tail[i].position.y = randomRange(-1, 1)
-		scene.add( tail[i] )
+	function genYMatrix(lower, upper) {
+		var mat = new THREE.Matrix3()
+		var angle = THREE.Math.degToRad(randomRange(lower, upper))
+		var cos = Math.cos(angle)
+		var sin = Math.sin(angle)
+		mat.set(cos, 0, sin, 0, 1, 0, -sin, 0, cos)
+		return mat
+	}
+
+	function randomizedVelocity(velo) {
+
+		var result = velo.clone().normalize()
+		result.multiplyScalar(randomRange(1,5))
+		var xRot = genXMatrix(-30, 30)
+		var yRot = genYMatrix(-30, 30)
+		result.applyMatrix3(xRot)
+		result.applyMatrix3(yRot)
+
+		return result
+	}
+
+	function generateTrailingParticle(id, particle) {
+		particle.position.x = leader.position.x
+		particle.position.y = leader.position.y
+		particle.position.z = leader.position.z
 
 		var worker = new Worker('worker.js')
 
 		worker.addEventListener('message', workerListener )
 
-		var velo = new THREE.Vector3(randomRange(-1, 1), randomRange(-1, 1), 0)
+		var velo = randomizedVelocity(new THREE.Vector3(0, -1, 0))
 
-		worker.postMessage({'id' : i,
-		'pos' : { 'x' : tail[i].position.x, 'y' : tail[i].position.y, 'z' : tail[i].position.z },
+		worker.postMessage({'id' : id, 'lifetime' : randomRange(1, 5),
+		'pos' : { 'x' : particle.position.x, 'y' : particle.position.y, 'z' : particle.position.z },
 		'vel' : { 'x' : velo.x, 'y' : velo.y, 'z' : velo.z }})
 	}
 
-	camera.position.z = 5;
+	var tail = {}
 
-	// Used to load files from the file chooser.
-	var fileLoader = document.getElementById("fileLoader")
-	fileLoader.addEventListener("change", getInputFile, false)
+for (var i = 0; i < 2; i++) {
+	tail[i] = makeParticle(.03, 0x0000ff)
+	scene.add( tail[i] )
+	generateTrailingParticle(i, tail[i])
+}
 
-	// Allows the user to use the file chooser instead of clicking.
-	canvas.addEventListener("click", function () {
-		console.log("Clicked")
-		fileLoader.click()
-	});
+camera.position.z = 5;
 
-	// To enable drag and drop
-	canvas.addEventListener("dragover", function (evt) {
-		evt.preventDefault();
-	}, false);
+// Used to load files from the file chooser.
+var fileLoader = document.getElementById("fileLoader")
+fileLoader.addEventListener("change", getInputFile, false)
 
-	// Loads the file and creates the Keyframes list
-	canvas.addEventListener("drop", getDropFile, false);
+// Allows the user to use the file chooser instead of clicking.
+canvas.addEventListener("click", function () {
+	console.log("Clicked")
+	fileLoader.click()
+});
 
-	// Gets the file from a drop event.
-	function getDropFile(evt) {
-		evt.preventDefault();
-		loadKeyframes(evt.dataTransfer.files[0])
-	}
+// To enable drag and drop
+canvas.addEventListener("dragover", function (evt) {
+	evt.preventDefault();
+}, false);
 
-	// Get the file from a click.
-	function getInputFile(evt) {
-		evt.preventDefault();
-		loadKeyframes(fileLoader.value)
-	}
-	/*
-	var animation = function (t) {
-	// If the time is past the current keyframe then slide to the next pair
-	if(currentFrame.peek().t <= t) {
-	currentFrame = currentFrame.peek()
-	console.log("===================== Keyframe Swap: " + t)
+// Loads the file and creates the Keyframes list
+canvas.addEventListener("drop", getDropFile, false);
+
+// Gets the file from a drop event.
+function getDropFile(evt) {
+	evt.preventDefault();
+	loadKeyframes(evt.dataTransfer.files[0])
+}
+
+// Get the file from a click.
+function getInputFile(evt) {
+	evt.preventDefault();
+	loadKeyframes(fileLoader.value)
+}
+/*
+var animation = function (t) {
+// If the time is past the current keyframe then slide to the next pair
+if(currentFrame.peek().t <= t) {
+currentFrame = currentFrame.peek()
+console.log("===================== Keyframe Swap: " + t)
 }
 
 // Create a new middle frame with interpolation
@@ -131,8 +169,30 @@ leader.position.setY(newFrame.position.y)
 leader.position.setZ(newFrame.position.z)
 }
 */
+
+
+
+var keyframes = new Frame(0, new THREE.Vector3(0, 0, 0))
+keyframes.push(new Frame(1, new THREE.Vector3(-1, 0, 0)))
+keyframes.push(new Frame(2, new THREE.Vector3(0, 0, 0)))
+keyframes.push(new Frame(3, new THREE.Vector3(1, 0, 0)))
+var currentFrame = keyframes
 var animation = function (t) {
-	return true
+	if(currentFrame.peek() != null) {
+		if(currentFrame.peek().t <= t) {
+			currentFrame = currentFrame.peek()
+			console.log("===================== Keyframe Swap: " + t)
+		}
+		// Create a new middle frame with interpolation
+		var newFrame = currentFrame.interpolate(currentFrame.peek(), t - currentFrame.t)
+
+		// Set the new position
+		leader.position.setX(newFrame.position.x)
+		leader.position.setY(newFrame.position.y)
+		leader.position.setZ(newFrame.position.z)
+
+	}
+	return currentFrame.peek() != null
 }
 
 animate(scene, renderer, animation)

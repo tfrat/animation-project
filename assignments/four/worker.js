@@ -13,16 +13,18 @@ self.addEventListener('message', function(e) {
   var clock = new THREE.Clock(true)
 
   var id = e.data.id
+  var lifetime = e.data.lifetime
   var pos = new THREE.Vector3(e.data.pos.x, e.data.pos.y, e.data.pos.z)
   var vel = new THREE.Vector3(e.data.vel.x, e.data.vel.y, e.data.vel.z)
 
   log('Loop started...', id)
+  while( clock.getElapsedTime() <= lifetime) {
 
-  while( clock.getElapsedTime() <= 3) {
     var delta = clock.getDelta()
-    if( delta != 0 ) {
-      pos.addScaledVector(vel, delta)
-      updatePosition(pos, id)
+      if( delta != 0 ) {
+          pos.addScaledVector(vel, delta)
+          updatePosition(pos, id)
+          deltaSum = 0
     }
   }
 

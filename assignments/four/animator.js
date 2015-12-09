@@ -147,7 +147,7 @@ function animate (scene, renderer, animation) {
       requestAnimationFrame( render )
     }
 
-    var t = clock.getDelta()
+    var t = clock.getElapsedTime()
 
     // Stop animating once the duration has been reached
 
