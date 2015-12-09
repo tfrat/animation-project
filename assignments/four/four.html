@@ -11,6 +11,7 @@
 	<script src="../../js/three.min.js"></script>
 	<script src="animator.js"></script>
 	<script src="particle.js"></script>
+	<script src="worker.js"></script>
 	<script>
 
 	var keyframe = null;
@@ -34,16 +35,52 @@
 		renderer.setSize( window.innerWidth, window.innerHeight )
 	}
 
-	var leader = makeParticle(.01, 0xffffff)
+	var leader = makeParticle(.1, 0xffffff)
 	scene.add( leader );
 
-	var tail = []
+	function randomRange(start, end) {
+		return (Math.random() * (end - start)) + start
+	}
 
-	for (var i = 0; i < 50; i++) {
-		tail.push(makeParticle(.01, 0x0000ff))
-		tail[i].position.x = (Math.random() * (1 - -1)) -1
-		tail[i].position.y = (Math.random() * (1 - -1)) -1
+
+	var workerListener = function(e) {
+		var id = e.data.id
+		var cmd = e.data.cmd
+		switch(cmd) {
+			case 'message':
+			console.log('Worker #' + id + ": " + e.data.msg)
+			break
+			case 'update':
+			var pos = e.data.pos
+			tail[id].position.x = pos.x
+			tail[id].position.y = pos.y
+			tail[id].position.z = pos.z
+			break
+			case 'terminate':
+			scene.remove(tail[id])
+			break
+
+
+		}
+	}
+
+	var tail = {}
+
+	for (var i = 0; i < 10; i++) {
+		tail[i] = makeParticle(.01, 0x0000ff)
+		tail[i].position.x = randomRange(-1, 1)
+		tail[i].position.y = randomRange(-1, 1)
 		scene.add( tail[i] )
+
+		var worker = new Worker('worker.js')
+
+		worker.addEventListener('message', workerListener )
+
+		var velo = new THREE.Vector3(randomRange(-1, 1), randomRange(-1, 1), 0)
+
+		worker.postMessage({'id' : i,
+		'pos' : { 'x' : tail[i].position.x, 'y' : tail[i].position.y, 'z' : tail[i].position.z },
+		'vel' : { 'x' : velo.x, 'y' : velo.y, 'z' : velo.z }})
 	}
 
 	camera.position.z = 5;
@@ -77,31 +114,30 @@
 		evt.preventDefault();
 		loadKeyframes(fileLoader.value)
 	}
-
 	/*
-
 	var animation = function (t) {
-		// If the time is past the current keyframe then slide to the next pair
-		if(currentFrame.peek().t <= t) {
-			currentFrame = currentFrame.peek()
-			console.log("===================== Keyframe Swap: " + t)
-		}
+	// If the time is past the current keyframe then slide to the next pair
+	if(currentFrame.peek().t <= t) {
+	currentFrame = currentFrame.peek()
+	console.log("===================== Keyframe Swap: " + t)
+}
 
-		// Create a new middle frame with interpolation
-		var newFrame = currentFrame.interpolate(currentFrame.peek(), t - currentFrame.t)
+// Create a new middle frame with interpolation
+var newFrame = currentFrame.interpolate(currentFrame.peek(), t - currentFrame.t)
 
-		// Set the new position
-		leader.position.setX(newFrame.position.x)
-		leader.position.setY(newFrame.position.y)
-		leader.position.setZ(newFrame.position.z)
-	}*/
+// Set the new position
+leader.position.setX(newFrame.position.x)
+leader.position.setY(newFrame.position.y)
+leader.position.setZ(newFrame.position.z)
+}
+*/
+var animation = function (t) {
+	return true
+}
 
-	var animation = function (t) {
+animate(scene, renderer, animation)
 
-	}
 
-	animate(scene, renderer, animation)
-
-	</script>
+</script>
 </body>
 </html>
