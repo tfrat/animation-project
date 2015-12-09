@@ -1,0 +1,247 @@
+<html>
+<head>
+	<title>Particle System</title>
+	<style>
+	body { margin: 0; }
+	canvas { width: 100%; height: 100% }
+	</style>
+</head>
+<body>
+	<input type="file" id="fileLoader" style="display:none;" />
+	<script src="../../js/three.min.js"></script>
+	<script src="../../js/dat.gui.min.js"></script>
+	<script src="animator.js"></script>
+	<script src="particle.js"></script>
+	<script src="worker.js"></script>
+	<script>
+
+	var scene = new THREE.Scene();
+	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+	var go = true
+
+	var renderer = new THREE.WebGLRenderer();
+	renderer.setSize( window.innerWidth, window.innerHeight );
+
+	// Add the WebGL canvas to browser's window
+	var canvas = renderer.domElement
+	document.body.appendChild( canvas );
+
+	window.addEventListener( 'resize', onWindowResize, false )
+	// Update the canvas and camera when the browser window size is modified
+	function onWindowResize(){
+		camera.aspect = window.innerWidth / window.innerHeight
+		camera.updateProjectionMatrix()
+
+		renderer.setSize( window.innerWidth, window.innerHeight )
+	}
+
+	var leader = makeParticle(.05, 0xffffff)
+	scene.add( leader );
+
+	function randomRange(start, end) {
+		return (Math.random() * (end - start)) + start
+	}
+
+
+		var velocity = new THREE.Vector3(0, 0, 0)
+		var speed = 5
+		var angle = 30
+		var lifetime = 2
+		var amount = 10
+		var tailColor = 0x0000FF
+
+
+	var workerListener = function(e) {
+		var id = e.data.id
+		var cmd = e.data.cmd
+		switch(cmd) {
+			case 'message':
+			console.log('Worker #' + id + ": " + e.data.msg)
+			break
+			case 'update':
+
+			var pos = e.data.pos
+			tail[id].position.x = pos.x
+			tail[id].position.y = pos.y
+			tail[id].position.z = pos.z
+			tail[id].material.color.setHex(tailColor * e.data.lifetimeRatio)
+
+			break
+			case 'terminate':
+			if(go) {
+				generateTrailingParticle(id, tail[id], e.target)
+			} else {
+				scene.remove(tail[id])
+				delete tail[id]
+				e.target.terminate
+			}
+			break
+
+
+		}
+	}
+
+	function genXMatrix(lower, upper) {
+		var mat = new THREE.Matrix3()
+		var angle = THREE.Math.degToRad(randomRange(lower, upper))
+		var cos = Math.cos(angle)
+		var sin = Math.sin(angle)
+		mat.set(1, 0, 0, 0, cos, -sin, 0, sin, cos)
+		return mat
+	}
+
+	function genYMatrix(lower, upper) {
+		var mat = new THREE.Matrix3()
+		var angle = THREE.Math.degToRad(randomRange(lower, upper))
+		var cos = Math.cos(angle)
+		var sin = Math.sin(angle)
+		mat.set(cos, 0, sin, 0, 1, 0, -sin, 0, cos)
+		return mat
+	}
+
+	function genZMatrix(lower, upper) {
+		var mat = new THREE.Matrix3()
+		var angle = THREE.Math.degToRad(randomRange(lower, upper))
+		var cos = Math.cos(angle)
+		var sin = Math.sin(angle)
+		mat.set(cos, sin, 0, -sin, cos, 0, 0, 0, 1)
+		return mat
+	}
+
+	function randomizedVelocity(velo) {
+
+		var result = velo.clone().normalize()
+		result.multiplyScalar(randomRange(1, speed))
+		var xRot = genXMatrix(-angle, angle)
+		var yRot = genYMatrix(-angle, angle)
+		var zRot = genZMatrix(-angle, angle)
+		result.applyMatrix3(xRot)
+		result.applyMatrix3(yRot)
+		result.applyMatrix3(zRot)
+
+
+		return result
+	}
+
+
+	function generateTrailingParticle(id, particle, worker) {
+		particle.position.x = leader.position.x
+		particle.position.y = leader.position.y
+		particle.position.z = leader.position.z
+
+		var velo = randomizedVelocity(velocity)
+
+		worker.postMessage({'id' : id, 'lifetime' : randomRange(.5, lifetime),
+		'pos' : { 'x' : particle.position.x, 'y' : particle.position.y, 'z' : particle.position.z },
+		'vel' : { 'x' : velo.x, 'y' : velo.y, 'z' : velo.z }})
+	}
+	var tail = {}
+
+	var timeout = function initilaizeTail() {
+		console.log('Creating tail..')
+		for (var i = 0; i < amount; i++) {
+			tail[i] = makeParticle(.02, tailColor)
+			scene.add( tail[i] )
+			var worker = new Worker('worker.js')
+			worker.addEventListener('message', workerListener )
+			generateTrailingParticle(i, tail[i], worker)
+		}
+	}
+
+	camera.position.z = 3;
+
+	// Used to load files from the file chooser.
+	var fileLoader = document.getElementById("fileLoader")
+	fileLoader.addEventListener("change", getInputFile, false)
+
+	// Allows the user to use the file chooser instead of clicking.
+	canvas.addEventListener("click", function () {
+		console.log("Clicked")
+		fileLoader.click()
+	});
+
+	// To enable drag and drop
+	canvas.addEventListener("dragover", function (evt) {
+		evt.preventDefault();
+	}, false);
+
+	// Loads the file and creates the Keyframes list
+	canvas.addEventListener("drop", getDropFile, false);
+
+	// Gets the file from a drop event.
+	function getDropFile(evt) {
+		evt.preventDefault();
+		loadKeyframes(evt.dataTransfer.files[0])
+	}
+
+	// Get the file from a click.
+	function getInputFile(evt) {
+		evt.preventDefault();
+		loadKeyframes(fileLoader.files[0])
+	}
+
+var keyframe = null
+var animation = function (t) {
+	if(currentFrame.peek() != null) {
+		var time = t
+		if(currentFrame.peek().t  <= time) {
+			currentFrame = currentFrame.peek()
+		}
+		// Create a new middle frame with interpolation
+		var newFrame = currentFrame.interpolate(currentFrame.peek(), time - currentFrame.t)
+
+		// Set the new position
+		velocity.subVectors(leader.position, newFrame.position)
+		leader.position.setX(newFrame.position.x)
+		leader.position.setY(newFrame.position.y)
+		leader.position.setZ(newFrame.position.z)
+
+	}
+
+	go = currentFrame.peek() != null
+
+	return true
+}
+
+/* Holds the properties of the object */
+var ObjectProperties = function() {
+	this.speed = speed
+	this.lifetime = lifetime
+	this.amount = amount
+	this.angle = angle
+};
+var text = new ObjectProperties();
+
+window.onload = function() {
+	var gui = new dat.GUI();
+
+	// Handles the spatial values of the object
+	var speedHandler = gui.add(text, 'speed', 1, 5)
+
+	speedHandler.onChange(function(value) {
+		speed = value
+	})
+
+	var lifetimeHandler = gui.add(text, 'lifetime', .5, 5)
+
+	lifetimeHandler.onChange(function(value) {
+		lifetime = value
+	})
+
+	var amountHandler = gui.add(text, 'amount', 0, 25)
+
+	amountHandler.onChange(function(value) {
+		amount = value
+	})
+
+	var angleHandler = gui.add(text, 'angle', 0, 360)
+
+	angleHandler.onChange(function(value) {
+		angle = value
+	})
+};
+
+</script>
+</body>
+</html>
