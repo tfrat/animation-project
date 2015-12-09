@@ -116,7 +116,7 @@
 		return result
 	}
 
-	var velocity = new THREE.Vector3(0, 1, 0)
+	var velocity = new THREE.Vector3(0, 0, 0)
 
 	function generateTrailingParticle(id, particle, worker) {
 		particle.position.x = leader.position.x
@@ -129,16 +129,20 @@
 		'pos' : { 'x' : particle.position.x, 'y' : particle.position.y, 'z' : particle.position.z },
 		'vel' : { 'x' : velo.x, 'y' : velo.y, 'z' : velo.z }})
 	}
-
 	var tail = {}
 
-	for (var i = 0; i < 10; i++) {
-		tail[i] = makeParticle(.02, 0x0000ff)
-		scene.add( tail[i] )
-		var worker = new Worker('worker.js')
-		worker.addEventListener('message', workerListener )
-		generateTrailingParticle(i, tail[i], worker)
+	var timeout = function initilaizeTail() {
+		for (var i = 0; i < 10; i++) {
+			tail[i] = makeParticle(.02, 0x0000ff)
+			scene.add( tail[i] )
+			var worker = new Worker('worker.js')
+			worker.addEventListener('message', workerListener )
+			generateTrailingParticle(i, tail[i], worker)
+		}
 	}
+
+	// Add a small delay so the leader can start moving
+	window.setTimeout(timeout, 10)
 
 	camera.position.z = 5;
 
