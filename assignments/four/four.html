@@ -35,7 +35,7 @@
 		renderer.setSize( window.innerWidth, window.innerHeight )
 	}
 
-	var leader = makeParticle(.1, 0xffffff)
+	var leader = makeParticle(.05, 0xffffff)
 	scene.add( leader );
 
 	function randomRange(start, end) {
@@ -58,9 +58,7 @@
 			tail[id].position.z = pos.z
 			break
 			case 'terminate':
-			scene.remove(tail[id])
-			delete tail[id]
-			//generateTrailingParticle(id)
+			generateTrailingParticle(id, tail[id], e.target)
 			break
 
 
@@ -85,79 +83,94 @@
 		return mat
 	}
 
+	function genZMatrix(lower, upper) {
+		var mat = new THREE.Matrix3()
+		var angle = THREE.Math.degToRad(randomRange(lower, upper))
+		var cos = Math.cos(angle)
+		var sin = Math.sin(angle)
+		mat.set(cos, sin, 0, -sin, cos, 0, 0, 0, 1)
+		return mat
+	}
+
+	var upper = 30
+	var lower = -30
+
 	function randomizedVelocity(velo) {
 
 		var result = velo.clone().normalize()
 		result.multiplyScalar(randomRange(1,5))
-		var xRot = genXMatrix(-30, 30)
-		var yRot = genYMatrix(-30, 30)
+		var xRot = genXMatrix(lower, upper)
+		var yRot = genYMatrix(lower, upper)
+		var zRot = genZMatrix(lower, upper)
 		result.applyMatrix3(xRot)
 		result.applyMatrix3(yRot)
+		result.applyMatrix3(zRot)
+
 
 		return result
 	}
 
-	function generateTrailingParticle(id, particle) {
+	var velocity = new THREE.Vector3(0, 1, 0)
+
+	function generateTrailingParticle(id, particle, worker) {
 		particle.position.x = leader.position.x
 		particle.position.y = leader.position.y
 		particle.position.z = leader.position.z
 
-		var worker = new Worker('worker.js')
+		var velo = randomizedVelocity(velocity)
 
-		worker.addEventListener('message', workerListener )
-
-		var velo = randomizedVelocity(new THREE.Vector3(0, -1, 0))
-
-		worker.postMessage({'id' : id, 'lifetime' : randomRange(1, 5),
+		worker.postMessage({'id' : id, 'lifetime' : randomRange(.5, 1),
 		'pos' : { 'x' : particle.position.x, 'y' : particle.position.y, 'z' : particle.position.z },
 		'vel' : { 'x' : velo.x, 'y' : velo.y, 'z' : velo.z }})
 	}
 
 	var tail = {}
+	
+	for (var i = 0; i < 10; i++) {
+		tail[i] = makeParticle(.02, 0x0000ff)
+		scene.add( tail[i] )
+		var worker = new Worker('worker.js')
+		worker.addEventListener('message', workerListener )
+		generateTrailingParticle(i, tail[i], worker)
+	}
 
-for (var i = 0; i < 2; i++) {
-	tail[i] = makeParticle(.03, 0x0000ff)
-	scene.add( tail[i] )
-	generateTrailingParticle(i, tail[i])
-}
+	camera.position.z = 5;
 
-camera.position.z = 5;
+	// Used to load files from the file chooser.
+	var fileLoader = document.getElementById("fileLoader")
+	fileLoader.addEventListener("change", getInputFile, false)
 
-// Used to load files from the file chooser.
-var fileLoader = document.getElementById("fileLoader")
-fileLoader.addEventListener("change", getInputFile, false)
+	// Allows the user to use the file chooser instead of clicking.
+	canvas.addEventListener("click", function () {
+		console.log("Clicked")
+		fileLoader.click()
+	});
 
-// Allows the user to use the file chooser instead of clicking.
-canvas.addEventListener("click", function () {
-	console.log("Clicked")
-	fileLoader.click()
-});
+	// To enable drag and drop
+	canvas.addEventListener("dragover", function (evt) {
+		evt.preventDefault();
+	}, false);
 
-// To enable drag and drop
-canvas.addEventListener("dragover", function (evt) {
-	evt.preventDefault();
-}, false);
+	// Loads the file and creates the Keyframes list
+	canvas.addEventListener("drop", getDropFile, false);
 
-// Loads the file and creates the Keyframes list
-canvas.addEventListener("drop", getDropFile, false);
+	// Gets the file from a drop event.
+	function getDropFile(evt) {
+		evt.preventDefault();
+		loadKeyframes(evt.dataTransfer.files[0])
+	}
 
-// Gets the file from a drop event.
-function getDropFile(evt) {
-	evt.preventDefault();
-	loadKeyframes(evt.dataTransfer.files[0])
-}
-
-// Get the file from a click.
-function getInputFile(evt) {
-	evt.preventDefault();
-	loadKeyframes(fileLoader.value)
-}
-/*
-var animation = function (t) {
-// If the time is past the current keyframe then slide to the next pair
-if(currentFrame.peek().t <= t) {
-currentFrame = currentFrame.peek()
-console.log("===================== Keyframe Swap: " + t)
+	// Get the file from a click.
+	function getInputFile(evt) {
+		evt.preventDefault();
+		loadKeyframes(fileLoader.value)
+	}
+	/*
+	var animation = function (t) {
+	// If the time is past the current keyframe then slide to the next pair
+	if(currentFrame.peek().t <= t) {
+	currentFrame = currentFrame.peek()
+	console.log("===================== Keyframe Swap: " + t)
 }
 
 // Create a new middle frame with interpolation
@@ -170,29 +183,37 @@ leader.position.setZ(newFrame.position.z)
 }
 */
 
-
-
 var keyframes = new Frame(0, new THREE.Vector3(0, 0, 0))
 keyframes.push(new Frame(1, new THREE.Vector3(-1, 0, 0)))
-keyframes.push(new Frame(2, new THREE.Vector3(0, 0, 0)))
-keyframes.push(new Frame(3, new THREE.Vector3(1, 0, 0)))
+keyframes.push(new Frame(2, new THREE.Vector3(-1, 1, 0)))
+keyframes.push(new Frame(3, new THREE.Vector3(1, 1, 0)))
+keyframes.push(new Frame(4, new THREE.Vector3(1, -1, 0)))
+keyframes.push(new Frame(5, new THREE.Vector3(-1, -1, 0)))
+keyframes.push(new Frame(6, new THREE.Vector3(-1, 0, 0)))
+keyframes.push(new Frame(7, new THREE.Vector3(0, 0, 0)))
+
+
+
+
+
 var currentFrame = keyframes
 var animation = function (t) {
 	if(currentFrame.peek() != null) {
-		if(currentFrame.peek().t <= t) {
+		var time = t
+		if(currentFrame.peek().t  <= time) {
 			currentFrame = currentFrame.peek()
-			console.log("===================== Keyframe Swap: " + t)
 		}
 		// Create a new middle frame with interpolation
-		var newFrame = currentFrame.interpolate(currentFrame.peek(), t - currentFrame.t)
+		var newFrame = currentFrame.interpolate(currentFrame.peek(), time - currentFrame.t)
 
 		// Set the new position
+		velocity.subVectors(leader.position, newFrame.position)
 		leader.position.setX(newFrame.position.x)
 		leader.position.setY(newFrame.position.y)
 		leader.position.setZ(newFrame.position.z)
 
 	}
-	return currentFrame.peek() != null
+	return true
 }
 
 animate(scene, renderer, animation)

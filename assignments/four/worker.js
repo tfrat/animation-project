@@ -17,7 +17,7 @@ self.addEventListener('message', function(e) {
   var pos = new THREE.Vector3(e.data.pos.x, e.data.pos.y, e.data.pos.z)
   var vel = new THREE.Vector3(e.data.vel.x, e.data.vel.y, e.data.vel.z)
 
-  log('Loop started...', id)
+  //log('Loop started...', id)
   while( clock.getElapsedTime() <= lifetime) {
 
     var delta = clock.getDelta()
@@ -28,9 +28,8 @@ self.addEventListener('message', function(e) {
     }
   }
 
-  log('Thread closing...', id)
+  //log('Thread closing...', id)
   self.postMessage({'cmd':'terminate', 'id' : id})
-  self.close()
 
 
 })
