@@ -7,7 +7,6 @@
 	</style>
 </head>
 <body>
-	<input type="file" id="fileLoader" style="display:none;" />
 	<script src="../../js/three.min.js"></script>
 	<script src="../../js/dat.gui.min.js"></script>
 	<script src="animator.js"></script>
@@ -151,16 +150,6 @@
 
 	camera.position.z = 3;
 
-	// Used to load files from the file chooser.
-	var fileLoader = document.getElementById("fileLoader")
-	fileLoader.addEventListener("change", getInputFile, false)
-
-	// Allows the user to use the file chooser instead of clicking.
-	canvas.addEventListener("click", function () {
-		console.log("Clicked")
-		fileLoader.click()
-	});
-
 	// To enable drag and drop
 	canvas.addEventListener("dragover", function (evt) {
 		evt.preventDefault();
@@ -173,12 +162,6 @@
 	function getDropFile(evt) {
 		evt.preventDefault();
 		loadKeyframes(evt.dataTransfer.files[0])
-	}
-
-	// Get the file from a click.
-	function getInputFile(evt) {
-		evt.preventDefault();
-		loadKeyframes(fileLoader.files[0])
 	}
 
 var keyframe = null
