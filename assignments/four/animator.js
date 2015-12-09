@@ -122,7 +122,8 @@ function loadKeyframes(file) {
       currentFrame = keyframe
 
       // Begin animation
-      animate(scene, renderer, keyframe.getLast().t, animation)
+      animate(scene, renderer, animation)
+      window.setTimeout(timeout, 10)
     }
     reader.readAsText(file)
   }

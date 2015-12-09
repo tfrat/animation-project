@@ -1,8 +1,9 @@
 importScripts('../../js/three.min.js')
 
-function updatePosition(pos, id) {
+function updatePosition(pos, id, lifetimeRatio) {
   self.postMessage({'cmd' : 'update', 'id' : id,
-                    'pos' : {'x' : pos.x, 'y' : pos.y, 'z' : pos.z}})
+                    'pos' : {'x' : pos.x, 'y' : pos.y, 'z' : pos.z},
+                    'lifetimeRatio' : lifetimeRatio})
 }
 
 function log(message, id) {
@@ -23,8 +24,7 @@ self.addEventListener('message', function(e) {
     var delta = clock.getDelta()
       if( delta != 0 ) {
           pos.addScaledVector(vel, delta)
-          updatePosition(pos, id)
-          deltaSum = 0
+          updatePosition(pos, id, (lifetime - clock.getElapsedTime())/lifetime)
     }
   }
 
