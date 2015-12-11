@@ -12,6 +12,7 @@
 	<script src="../../js/dat.gui.min.js"></script>
 	<script src="../../js/animator.js"></script>
 	<script src="../../js/physics.js"></script>
+	<script src="./geo.js"></script>
 	<script>
 	var scene = new THREE.Scene()
 	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
@@ -61,50 +62,13 @@
 	var ballMass = .17
 	var tableHeight = 2.438
 	var tableWidth = 1.298
-	var shortCushionDimension = new THREE.Vector3( 1.448, .1, .076)
+	var shortCushionDimension = new THREE.Vector3( 1.448, .1, .076) // width, height, depth
 	var longCushionDimension = new THREE.Vector3( 2.438, .1, .076)
 
 	/* Sphere */
-
-	var sphereGeometry = new THREE.SphereGeometry( ballRadius, 32, 32 )
-	var cueBallTexture = new THREE.ImageUtils.loadTexture('../../textures/balls/BallCue.jpg')
-	cueBallTexture.minFilter = THREE.LinearFilter
-	var cueBallMaterial = new THREE.MeshPhongMaterial( {
-		map: cueBallTexture,
-		specular: 0x222222,
-		shininess: 100,
-		shading: THREE.SmoothShading
-	} )
-
-	var cueBall = new THREE.Mesh( sphereGeometry, cueBallMaterial )
-	cueBall.castShadow = true
-	cueBall.receieveShadow = true
-
-	var oneBallTexture = new THREE.ImageUtils.loadTexture('../../textures/balls/Ball1.jpg')
-	oneBallTexture.minFilter = THREE.LinearFilter
-	var oneBallMaterial = new THREE.MeshPhongMaterial( {
-		map: oneBallTexture,
-		specular: 0x222222,
-		shininess: 100,
-		shading: THREE.SmoothShading
-	} )
-
-	var oneBall = new THREE.Mesh( sphereGeometry, oneBallMaterial )
-	oneBall.castShadow = true
-	oneBall.receieveShadow = true
-
-	var twoBallTexture = new THREE.ImageUtils.loadTexture('../../textures/balls/Ball2.jpg')
-	twoBallTexture.minFilter = THREE.LinearFilter
-	var twoBallMaterial = new THREE.MeshPhongMaterial( {
-		map: twoBallTexture,
-		specular: 0x222222,
-		shininess: 100,
-		shading: THREE.SmoothShading
-	} )
-
-	var twoBall = new THREE.Mesh( sphereGeometry, twoBallMaterial )
-	twoBall.castShadow = true
-	twoBall.receieveShadow = true
+	var cueBall = makeSphere(ballRadius, '../../textures/balls/BallCue.jpg')
+	var oneBall = makeSphere(ballRadius, '../../textures/balls/Ball1.jpg')
+	var twoBall = makeSphere(ballRadius, '../../textures/balls/Ball2.jpg')
 
 	/* Table */
 	var tableGeometry = new THREE.PlaneBufferGeometry(tableHeight, tableWidth)
@@ -162,8 +126,8 @@
 
 	// Add the objects to the scene
 	scene.add( cueBall )
-	//scene.add( oneBall )
-	//scene.add( twoBall )
+	scene.add( oneBall )
+	scene.add( twoBall )
 	scene.add( table )
 	scene.add( leftCushion )
 	scene.add( rightCushion )
@@ -171,8 +135,8 @@
 	scene.add( bottomCushion )
 
 	// Initialize the object's spatial properties
-	cueBall.position.set(0, ballRadius, -1)
-	oneBall.position.set(0, ballRadius, -1)
+	cueBall.position.set(0, ballRadius, 0)
+	oneBall.position.set(0, ballRadius, .5)
 	twoBall.position.set(0, ballRadius, -.5)
 
 	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
@@ -204,19 +168,23 @@
 	balls.push(new PhysicsObject(cueBall,
 															 ballMass,
 															 new THREE.Vector3(0, 0, 0)))
-	/*balls.push(new PhysicsObject(oneBall,
+	balls.push(new PhysicsObject(oneBall,
 															 ballMass,
 															 new THREE.Vector3(0, 0, 0)))
 	balls.push(new PhysicsObject(twoBall,
 															 ballMass,
-															 new THREE.Vector3(0, 0, 0),
-															 new THREE.Vector3(0, 0, 0)))*/
+															 new THREE.Vector3(0, 0, 0)))
 
 	function detectCollisions() {
+		var cueSphere = new THREE.Sphere(cueBall.position, ballRadius)
 		for (x in balls) {
 			if (x > 0) {
-				if (balls[0].object.position.distanceTo(balls[x].object.position) <= .374) {
-					balls[0].acceleration.multiplyScalar(-1)
+				var ball = new THREE.Sphere(balls[x].getPosition(), ballRadius)
+				if (ball.intersectsSphere(cueSphere)) {
+					console.log("Intersected")
+					balls[0].velocity.multiplyScalar(-1)
+					balls[0].force.multiplyScalar(-1)
+					balls[0].momentum.multiplyScalar(-1)
 				}
 			}
 		}
@@ -227,7 +195,7 @@
 	var animation = function (t) {
 
 		// Collision detection
-		//detectCollisions()
+		detectCollisions()
 
 		// Force application
 		return balls[0].updateForces(t)
@@ -260,19 +228,6 @@
 		var accZ = posFolder.add(text, 'z', -.1, .1)
 	  var kin = gui.add(text, 'kinCoef', 0, 1)
 
-		// Listen for values changes and update the object's properties
-		accX.onChange(function(value) {
-			balls[0].force.x = value
-		})
-
-		accY.onChange(function(value) {
-			balls[0].force.y = value
-		})
-
-		accZ.onChange(function(value) {
-			balls[0].force.z = value
-		})
-
 		kin.onChange(function(value) {
 			balls[0].setKineticCoef(value)
 		})
@@ -280,6 +235,8 @@
 		posFolder.open()
 
 	};
+
+	renderer.render( scene, camera )
 
 	</script>
 </body>
