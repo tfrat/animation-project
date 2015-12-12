@@ -137,7 +137,7 @@
 	// Initialize the object's spatial properties
 	cueBall.position.set(0, ballRadius, 0)
 	oneBall.position.set(0, ballRadius, .5)
-	twoBall.position.set(0, ballRadius, -.5)
+	twoBall.position.set(.09, ballRadius, -.5)
 
 	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
 
@@ -175,30 +175,20 @@
 															 ballMass,
 															 new THREE.Vector3(0, 0, 0)))
 
-	function detectCollisions() {
-		var cueSphere = new THREE.Sphere(cueBall.position, ballRadius)
-		for (x in balls) {
-			if (x > 0) {
-				var ball = new THREE.Sphere(balls[x].getPosition(), ballRadius)
-				if (ball.intersectsSphere(cueSphere)) {
-					console.log("Intersected")
-					balls[0].velocity.multiplyScalar(-1)
-					balls[0].force.multiplyScalar(-1)
-					balls[0].momentum.multiplyScalar(-1)
-				}
-			}
-		}
-	}
-
-
 	// Rotate the ball slowly
 	var animation = function (t) {
 
 		// Collision detection
 		detectCollisions()
 
+		var go = true
+
+		for (x in balls) {
+			go = go && balls[x].updateForces(t)
+		}
+
 		// Force application
-		return balls[0].updateForces(t)
+		return go
 	}
 
 	// Allows the user to use the file chooser instead of clicking.
