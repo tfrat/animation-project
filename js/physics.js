@@ -108,16 +108,39 @@ function handleCollision(ballOne, ballTwo) {
 
 }
 
-function detectCollisions() {
-  var cueSphere = new THREE.Sphere(cueBall.position, ballRadius)
-  for (x in balls) {
-    if (x > 0) {
-      var ball = new THREE.Sphere(balls[x].getPosition(), ballRadius)
-      if (ball.intersectsSphere(cueSphere)) {
-        if(balls[0].velocity.dot(balls[x].velocity) == 0) {
-          handleCollision(balls[0], balls[x])
+function detectSpheres() {
+  for (var x = 0; x < balls.length; x++) {
+    var ballOne = new THREE.Sphere(balls[x].getPosition(), ballRadius)
+    for (var y = x + 1; y < balls.length; y++) {
+      var ballTwo = new THREE.Sphere(balls[y].getPosition(), ballRadius)
+      if (ballOne.intersectsSphere(ballTwo)) {
+        if(balls[x].velocity.dot(balls[y].velocity) == 0) {
+          handleCollision(balls[x], balls[y])
         }
       }
     }
   }
+}
+
+function detectWalls() {
+  for(var y = 0; y < balls.length; y++) {
+    var ball = new THREE.Sphere(balls[y].getPosition(), ballRadius)
+    for(var x = 0; x < walls.length; x++) {
+      if(Math.abs(walls[x].distanceToSphere(ball)) < ballRadius) {
+          var ri = balls[y].velocity.clone().multiplyScalar(-1)
+          var reflected = walls[x].normal.clone().multiplyScalar(2 * ri.dot(walls[x].normal))
+
+          reflected.sub(ri)
+          reflected.multiplyScalar(restitution)
+          balls[y].setVelocity(reflected)
+        }
+      
+    }
+  }
+}
+
+function detectCollisions() {
+  detectSpheres()
+
+  detectWalls()
 }

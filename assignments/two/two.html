@@ -64,6 +64,7 @@
 	var tableWidth = 1.298
 	var shortCushionDimension = new THREE.Vector3( 1.448, .1, .076) // width, height, depth
 	var longCushionDimension = new THREE.Vector3( 2.438, .1, .076)
+	var restitution = .9
 
 	/* Sphere */
 	var cueBall = makeSphere(ballRadius, '../../textures/balls/BallCue.jpg')
@@ -110,19 +111,35 @@
 		shininess: 30,
 		shading: THREE.SmoothShading } )
 	var leftCushion = new THREE.Mesh( longCushionGeometry, longCushionMaterial.clone() )
+	leftCushion.geometry.computeBoundingBox()
 	leftCushion.receiveShadow = true
 	leftCushion.castShadow =  false
 
 	var rightCushion = new THREE.Mesh( longCushionGeometry, longCushionMaterial.clone() )
+	rightCushion.geometry.computeBoundingBox()
 	rightCushion.receiveShadow = true
 	rightCushion.castShadow = false
 
 	var topCushion = new THREE.Mesh( shortCushionGeometry, shortCushionMaterial.clone() )
+	topCushion.geometry.computeBoundingBox()
 	topCushion.receiveShadow = true
 	topCushion.castShadow = false
 	var bottomCushion = new THREE.Mesh( shortCushionGeometry, shortCushionMaterial.clone() )
+	bottomCushion.geometry.computeBoundingBox()
 	bottomCushion.receiveShadow = true
 	bottomCushion.castShadow = false
+
+
+	// Cushion bounding boxes
+	var walls = []
+
+	var poop = (tableWidth + longCushionDimension.z)/2
+	var dookie = (tableHeight + shortCushionDimension.z)/2
+
+	walls.push(new THREE.Plane(new THREE.Vector3(0, 0, -1), dookie))
+	walls.push(new THREE.Plane(new THREE.Vector3(0, 0, 1), dookie))
+	walls.push(new THREE.Plane(new THREE.Vector3(1, 0, 0), poop))
+	walls.push(new THREE.Plane(new THREE.Vector3(-1, 0, 0), poop))
 
 	// Add the objects to the scene
 	scene.add( cueBall )
@@ -135,8 +152,8 @@
 	scene.add( bottomCushion )
 
 	// Initialize the object's spatial properties
-	cueBall.position.set(0, ballRadius, 0)
-	oneBall.position.set(0, ballRadius, .5)
+	cueBall.position.set(0, ballRadius, .5)
+	oneBall.position.set(.1, ballRadius, .1)
 	twoBall.position.set(.09, ballRadius, -.5)
 
 	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
@@ -205,6 +222,7 @@
 		this.y = 0;
 		this.z = 0;
 	  this.kinCoef = 1;
+		this.restitution = .9
 	};
 	var text = new ObjectProperties();
 
@@ -217,9 +235,16 @@
 		var accY = posFolder.add(text, 'y', -.1, .1)
 		var accZ = posFolder.add(text, 'z', -.1, .1)
 	  var kin = gui.add(text, 'kinCoef', 0, 1)
+		var res = gui.add(text, 'restitution', 0, 1)
 
 		kin.onChange(function(value) {
-			balls[0].setKineticCoef(value)
+			for(var x = 0; x < balls.length; x++) {
+				balls[x].setKineticCoef(value)
+			}
+		})
+
+		res.onChange(function(value) {
+			restitution = value
 		})
 
 		posFolder.open()
@@ -227,6 +252,9 @@
 	};
 
 	renderer.render( scene, camera )
+
+
+	animate(scene, renderer, animation)
 
 	</script>
 </body>
