@@ -211,9 +211,10 @@
 	// Allows the user to use the file chooser instead of clicking.
 	canvas.addEventListener("click", function () {
 		console.log("Clicked")
-		balls[0].inMotion = true
+
+		//balls[0].inMotion = true
 		balls[0].setForce(new THREE.Vector3(text.x, text.y, text.z))
-		animate(scene, renderer, animation)
+		//animate(scene, renderer, animation)
 	});
 
 	/* Holds the properties of the object */
@@ -230,10 +231,10 @@
 		var gui = new dat.GUI();
 
 		// Handles the spatial values of the object
-		var posFolder = gui.addFolder('Force')
-		var accX = posFolder.add(text, 'x', -.1, .1)
-		var accY = posFolder.add(text, 'y', -.1, .1)
-		var accZ = posFolder.add(text, 'z', -.1, .1)
+		var forceFolder = gui.addFolder('Forces')
+		var accX = forceFolder.add(text, 'x', -.1, .1)
+		var accY = forceFolder.add(text, 'y', -.1, .1)
+		var accZ = forceFolder.add(text, 'z', -.1, .1)
 	  var kin = gui.add(text, 'kinCoef', 0, 1)
 		var res = gui.add(text, 'restitution', 0, 1)
 
@@ -247,7 +248,11 @@
 			restitution = value
 		})
 
-		posFolder.open()
+		forceFolder.open()
+
+		var positionFolder = gui.addFolder('Position')
+
+		positionFolder.open()
 
 	};
 
