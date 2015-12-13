@@ -32,23 +32,24 @@ class PhysicsObject {
   }
 
   setForce(force) {
-    printVector("Set force", force )
     this.force = force
     this.momentum = this.force.clone().multiplyScalar(1/this.mass)
     this.velocity = this.momentum.clone().multiplyScalar(1/this.mass)
   }
 
+  addForce(force) {
+    this.force.add(force)
+  }
+
   updateForces( t ) {
-    if(this.inMotion) {
-      var fn = this.force.clone().normalize()
-      fn.negate()
-      fn.multiplyScalar(this.kineticForce)
-      this.force.add(fn)
+    var fn = this.force.clone().normalize()
+    fn.negate()
+    fn.multiplyScalar(this.kineticForce)
+    this.force.add(fn)
 
-      this.applyForces(t)
-    }
+    this.applyForces(t)
 
-    return this.inMotion
+    return true
   }
 
   applyForces( t ) {
@@ -56,11 +57,8 @@ class PhysicsObject {
       this.object.position.addScaledVector(this.velocity, t)
       var delta = this.force.clone().multiplyScalar(t)
 
-      //printVector("Delta", delta)
-      //printVector("Momentum", this.momentum)
 
       if(delta.length() > this.momentum.length()){
-        this.inMotion = false
         this.setForce(new THREE.Vector3(0,0,0))
       } else {
         this.momentum.add(delta)
@@ -115,7 +113,8 @@ function detectSpheres() {
       var ballTwo = new THREE.Sphere(balls[y].getPosition(), ballRadius)
       if (ballOne.intersectsSphere(ballTwo)) {
         if(balls[x].velocity.dot(balls[y].velocity) == 0) {
-          handleCollision(balls[x], balls[y])
+        console.log("Collided")
+        handleCollision(balls[x], balls[y])
         }
       }
     }
@@ -127,14 +126,14 @@ function detectWalls() {
     var ball = new THREE.Sphere(balls[y].getPosition(), ballRadius)
     for(var x = 0; x < walls.length; x++) {
       if(Math.abs(walls[x].distanceToSphere(ball)) < ballRadius) {
-          var ri = balls[y].velocity.clone().multiplyScalar(-1)
-          var reflected = walls[x].normal.clone().multiplyScalar(2 * ri.dot(walls[x].normal))
+        var ri = balls[y].velocity.clone().negate()
+        var reflected = walls[x].normal.clone().multiplyScalar(2 * ri.dot(walls[x].normal))
 
-          reflected.sub(ri)
-          reflected.multiplyScalar(restitution)
-          balls[y].setVelocity(reflected)
-        }
-      
+        reflected.sub(ri)
+        reflected.multiplyScalar(restitution)
+        balls[y].setVelocity(reflected)
+      }
+
     }
   }
 }
