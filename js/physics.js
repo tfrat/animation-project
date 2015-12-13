@@ -48,24 +48,20 @@ class PhysicsObject {
     this.force.add(fn)
 
     this.applyForces(t)
-
-    return true
   }
 
   applyForces( t ) {
-    if(this.inMotion) {
-      this.object.position.addScaledVector(this.velocity, t)
-      var delta = this.force.clone().multiplyScalar(t)
+    this.object.position.addScaledVector(this.velocity, t)
+    var delta = this.force.clone().multiplyScalar(t)
 
-
-      if(delta.length() > this.momentum.length()){
-        this.setForce(new THREE.Vector3(0,0,0))
-      } else {
-        this.momentum.add(delta)
-        this.velocity = this.momentum.clone().multiplyScalar(1/this.mass)
-      }
+    if(delta.length() > this.momentum.length()){
+      this.setForce(new THREE.Vector3(0,0,0))
+    } else {
+      this.momentum.add(delta)
+      this.velocity = this.momentum.clone().multiplyScalar(1/this.mass)
     }
   }
+
 }
 
 function printVector(s, v) {
@@ -109,15 +105,14 @@ function handleCollision(ballOne, ballTwo) {
 function detectSpheres() {
   for (var x = 0; x < balls.length; x++) {
     var ballOne = new THREE.Sphere(balls[x].getPosition(), ballRadius)
-    for (var y = x + 1; y < balls.length; y++) {
-      var ballTwo = new THREE.Sphere(balls[y].getPosition(), ballRadius)
-      if (ballOne.intersectsSphere(ballTwo)) {
-        if(balls[x].velocity.dot(balls[y].velocity) == 0) {
-        console.log("Collided")
-        handleCollision(balls[x], balls[y])
+      for (var y = x + 1; y < balls.length; y++) {
+        var ballTwo = new THREE.Sphere(balls[y].getPosition(), ballRadius)
+        if (ballOne.intersectsSphere(ballTwo)) {
+          if(balls[x].velocity.dot(balls[y].velocity) == 0) {
+            handleCollision(balls[x], balls[y])
+          }
         }
       }
-    }
   }
 }
 
@@ -125,15 +120,17 @@ function detectWalls() {
   for(var y = 0; y < balls.length; y++) {
     var ball = new THREE.Sphere(balls[y].getPosition(), ballRadius)
     for(var x = 0; x < walls.length; x++) {
-      if(Math.abs(walls[x].distanceToSphere(ball)) < ballRadius) {
-        var ri = balls[y].velocity.clone().negate()
-        var reflected = walls[x].normal.clone().multiplyScalar(2 * ri.dot(walls[x].normal))
+      if(Math.abs(walls[x].distanceToSphere(ball)) <= ballRadius) {
 
-        reflected.sub(ri)
-        reflected.multiplyScalar(restitution)
-        balls[y].setVelocity(reflected)
+        if(balls[y].velocity.dot(walls[x].normal) < 0) {
+          var ri = balls[y].velocity.clone().negate()
+          var reflected = walls[x].normal.clone().multiplyScalar(2 * ri.dot(walls[x].normal))
+
+          reflected.sub(ri)
+          reflected.multiplyScalar(restitution)
+          balls[y].setVelocity(reflected)
+        }
       }
-
     }
   }
 }
