@@ -152,9 +152,9 @@
 	scene.add( bottomCushion )
 
 	// Initialize the object's spatial properties
-	cueBall.position.set(0, ballRadius, .5)
-	oneBall.position.set(.1, ballRadius, .1)
-	twoBall.position.set(.09, ballRadius, -.5)
+	cueBall.position.set(0, ballRadius, 0)
+	oneBall.position.set(ballRadius, ballRadius, -1)
+	twoBall.position.set(-ballRadius, ballRadius, -1)
 
 	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
 
@@ -198,23 +198,17 @@
 		// Collision detection
 		detectCollisions()
 
-		var go = true
-
 		for (x in balls) {
-			go = go && balls[x].updateForces(t)
+			balls[x].updateForces(t)
 		}
 
 		// Force application
-		return go
+		return true
 	}
 
 	// Allows the user to use the file chooser instead of clicking.
 	canvas.addEventListener("click", function () {
-		console.log("Clicked")
-
-		//balls[0].inMotion = true
 		balls[0].setForce(new THREE.Vector3(text.x, text.y, text.z))
-		//animate(scene, renderer, animation)
 	});
 
 	/* Holds the properties of the object */
