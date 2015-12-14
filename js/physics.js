@@ -101,14 +101,15 @@ function handleCollision(ballOne, ballTwo) {
   applyImpulse(ballTwo, impulse.clone().multiplyScalar(-1), normal)
 
 }
-
+var zero = new THREE.Vector3(0, 0, 0)
 function detectSpheres() {
   for (var x = 0; x < balls.length; x++) {
     var ballOne = new THREE.Sphere(balls[x].getPosition(), ballRadius)
       for (var y = x + 1; y < balls.length; y++) {
         var ballTwo = new THREE.Sphere(balls[y].getPosition(), ballRadius)
         if (ballOne.intersectsSphere(ballTwo)) {
-          if(balls[x].velocity.dot(balls[y].velocity) == 0) {
+          if((balls[x].velocity.dot(balls[y].velocity) == 0 && balls[y].velocity.equals(zero)) ||
+              balls[x].velocity.dot(balls[y].velocity) < 0 && !balls[y].velocity.equals(zero)) {
             handleCollision(balls[x], balls[y])
           }
         }
