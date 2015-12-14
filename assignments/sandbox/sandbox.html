@@ -36,6 +36,34 @@
 		renderer.setSize( window.innerWidth, window.innerHeight )
 	}
 
+	var mouse = new THREE.Vector2()
+	var raycaster = new THREE.Raycaster()
+
+	function onMouseMove( event ) {
+
+		// calculate mouse position in normalized device coordinates
+		// (-1 to +1) for both components
+
+		mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+		mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			// update the picking ray with the camera and mouse position
+		raycaster.setFromCamera( mouse, camera );
+
+		// calculate objects intersecting the picking ray
+		var intersects = raycaster.intersectObjects( scene.children );
+
+		for ( var i = 0; i < intersects.length; i++ ) {
+			for (var x = 0; x < balls.length; x++) {
+				if(intersects[i].object.id == balls[x].getID()) {
+					selectedBall = balls[x]
+				}
+			}
+		}
+	}
+
+	window.addEventListener( 'click', onMouseMove, false )
+
 	// A cone of light placed directly over the pool table
 	var spotLight = new THREE.SpotLight( 0xffffff )
 	spotLight.position.set( 0, 10, 0 )
@@ -193,6 +221,8 @@
 	balls.push(new PhysicsObject(twoBall,
 															 ballMass,
 															 new THREE.Vector3(0, 0, 0)))
+
+  var selectedBall = balls[0]
 
 	// Rotate the ball slowly
 	var animation = function (t) {

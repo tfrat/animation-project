@@ -26,6 +26,10 @@ class PhysicsObject {
     return this.object.position
   }
 
+  getID() {
+    return this.object.id
+  }
+
   setVelocity(velocity) {
     this.velocity = velocity
     this.momentum = this.velocity.clone().multiplyScalar(this.mass)
