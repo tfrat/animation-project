@@ -239,9 +239,18 @@
 	}
 
 	// Allows the user to use the file chooser instead of clicking.
-	canvas.addEventListener("click", function () {
-		balls[0].setForce(new THREE.Vector3(text.x, text.y, text.z))
-	});
+	window.onkeyup = function (e) {
+		switch(e.which) {
+			case 32:
+				console.log("pressed");
+				selectedBall.setForce(new THREE.Vector3(text.x, text.y, text.z))
+				break;
+			default:
+				break;
+		}
+
+
+	};
 
 	/* Holds the properties of the object */
 	var ObjectProperties = function() {
