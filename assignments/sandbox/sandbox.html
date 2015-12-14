@@ -1,0 +1,262 @@
+<html>
+<head>
+	<title>Physics Sandbox</title>
+	<style>
+	body { margin: 0; }
+	canvas { width: 100%; height: 100% }
+	</style>
+</head>
+<body>
+	<input type="file" id="fileLoader" style="display:none;" />
+	<script src="../../js/three.min.js"></script>
+	<script src="../../js/dat.gui.min.js"></script>
+	<script src="../../js/animator.js"></script>
+	<script src="../../js/physics.js"></script>
+	<script src="./geo.js"></script>
+	<script>
+	var scene = new THREE.Scene()
+	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 )
+
+	// Initialize the renderer
+	var renderer = new THREE.WebGLRenderer( { antialias: true })
+	renderer.setSize( window.innerWidth, window.innerHeight )
+	renderer.shadowMap.enabled = true
+	renderer.shadowMap.type = THREE.PCFShadowMap
+
+	// Add the WebGL canvas to browser's window
+	var canvas = renderer.domElement
+	document.body.appendChild( canvas )
+
+	window.addEventListener( 'resize', onWindowResize, false )
+	// Update the canvas and camera when the browser window size is modified
+	function onWindowResize(){
+		camera.aspect = window.innerWidth / window.innerHeight
+		camera.updateProjectionMatrix()
+
+		renderer.setSize( window.innerWidth, window.innerHeight )
+	}
+
+	// A cone of light placed directly over the pool table
+	var spotLight = new THREE.SpotLight( 0xffffff )
+	spotLight.position.set( 0, 10, 0 )
+
+	spotLight.castShadow = true
+
+	spotLight.shadowMapWidth = 1024
+	spotLight.shadowMapHeight = 1024
+
+	spotLight.shadowCameraNear = 1
+	spotLight.shadowCameraFar = 200
+	spotLight.shadowCameraFov = 40
+
+	scene.add( spotLight );
+
+	// Adds a soft white light everywhere in the scene
+	var light = new THREE.AmbientLight( 0x404040 );
+	scene.add( light );
+
+	// Generate the scene
+
+	// Object geometric constants (in meters)
+	var ballRadius = .057
+	var ballMass = .17
+	var tableHeight = 2.438
+	var tableWidth = 1.298
+	var shortCushionDimension = new THREE.Vector3( 1.448, .1, .076) // width, height, depth
+	var longCushionDimension = new THREE.Vector3( 2.438, .1, .076)
+	var restitution = .9
+
+	/* Sphere */
+	var cueBall = makeSphere(ballRadius, '../../textures/balls/BallCue.jpg')
+	var oneBall = makeSphere(ballRadius, '../../textures/balls/Ball1.jpg')
+	var twoBall = makeSphere(ballRadius, '../../textures/balls/Ball2.jpg')
+
+	/* Table */
+	var tableGeometry = new THREE.PlaneBufferGeometry(tableHeight, tableWidth)
+	var tableTexture = THREE.ImageUtils.loadTexture('../../textures/pool_table.png')
+	tableTexture.wrapS = tableTexture.wrapT = THREE.RepeatWrapping
+	tableTexture.repeat.set(16, 16)
+
+	var tableMaterial = new THREE.MeshLambertMaterial( { map: tableTexture } )
+	var table = new THREE.Mesh( tableGeometry, tableMaterial)
+	table.material.side = THREE.DoubleSide
+	table.receiveShadow = true
+	table.castShadow = false
+
+	/* Cushions */
+	var shortCushionGeometry = new THREE.BoxGeometry( shortCushionDimension.x,
+		shortCushionDimension.y,
+		shortCushionDimension.z )
+	var shortCushionTexture = THREE.ImageUtils.loadTexture('../../textures/pool_cushion.png')
+	shortCushionTexture.wrapS = tableTexture.wrapT = THREE.MirroredRepeatWrapping
+	shortCushionTexture.repeat.set(16, 1)
+	shortCushionTexture.minFilter = THREE.NearestFilter
+
+	var longCushionGeometry = new THREE.BoxGeometry( longCushionDimension.x,
+		longCushionDimension.y,
+		longCushionDimension.z )
+	var longCushionTexture = THREE.ImageUtils.loadTexture('../../textures/pool_cushion.png')
+	longCushionTexture.repeat.set(32, 1)
+	longCushionTexture.wrapS = tableTexture.wrapT = THREE.MirroredRepeatWrapping
+	longCushionTexture.minFilter = THREE.NearestFilter
+
+	var shortCushionMaterial = new THREE.MeshPhongMaterial( {
+		map: shortCushionTexture,
+		specular: 0x222222,
+		shininess: 30,
+		shading: THREE.SmoothShading } )
+	var longCushionMaterial = new THREE.MeshPhongMaterial( {
+		map: longCushionTexture,
+		specular: 0x222222,
+		shininess: 30,
+		shading: THREE.SmoothShading } )
+	var leftCushion = new THREE.Mesh( longCushionGeometry, longCushionMaterial.clone() )
+	leftCushion.geometry.computeBoundingBox()
+	leftCushion.receiveShadow = true
+	leftCushion.castShadow =  false
+
+	var rightCushion = new THREE.Mesh( longCushionGeometry, longCushionMaterial.clone() )
+	rightCushion.geometry.computeBoundingBox()
+	rightCushion.receiveShadow = true
+	rightCushion.castShadow = false
+
+	var topCushion = new THREE.Mesh( shortCushionGeometry, shortCushionMaterial.clone() )
+	topCushion.geometry.computeBoundingBox()
+	topCushion.receiveShadow = true
+	topCushion.castShadow = false
+	var bottomCushion = new THREE.Mesh( shortCushionGeometry, shortCushionMaterial.clone() )
+	bottomCushion.geometry.computeBoundingBox()
+	bottomCushion.receiveShadow = true
+	bottomCushion.castShadow = false
+
+
+	// Cushion bounding boxes
+	var walls = []
+
+	var poop = (tableWidth + longCushionDimension.z)/2
+	var dookie = (tableHeight + shortCushionDimension.z)/2
+
+	walls.push(new THREE.Plane(new THREE.Vector3(0, 0, -1), dookie))
+	walls.push(new THREE.Plane(new THREE.Vector3(0, 0, 1), dookie))
+	walls.push(new THREE.Plane(new THREE.Vector3(1, 0, 0), poop))
+	walls.push(new THREE.Plane(new THREE.Vector3(-1, 0, 0), poop))
+	walls.push(new THREE.Plane(new THREE.Vector3(0, 1, 0), ballRadius))
+	walls.push(new THREE.Plane(new THREE.Vector3(0, -1, 0), 3))
+
+	// Add the objects to the scene
+	scene.add( cueBall )
+	scene.add( oneBall )
+	scene.add( twoBall )
+	scene.add( table )
+	scene.add( leftCushion )
+	scene.add( rightCushion )
+	scene.add( topCushion )
+	scene.add( bottomCushion )
+
+	// Initialize the object's spatial properties
+	cueBall.position.set(0, ballRadius, 0)
+	oneBall.position.set(ballRadius, ballRadius, -1)
+	twoBall.position.set(-ballRadius, ballRadius, -1)
+
+	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
+
+	var longCushionXOffset = (tableWidth + longCushionDimension.z)/2
+	var cusionYOffset = longCushionDimension.y/2
+
+	leftCushion.rotation.set(0, THREE.Math.degToRad(90), 0 )
+	leftCushion.position.set(-longCushionXOffset, cusionYOffset, 0)
+
+	rightCushion.rotation.set(0, THREE.Math.degToRad(90), 0 )
+	rightCushion.position.set(longCushionXOffset, cusionYOffset, 0)
+
+	var shortCushionZOffset = (tableHeight + shortCushionDimension.z)/2
+
+	topCushion.position.set(0, cusionYOffset, shortCushionZOffset)
+
+	bottomCushion.position.set(0, cusionYOffset, -shortCushionZOffset)
+
+	// Initialize the camera position
+	camera.position.x = -.5;
+	camera.position.y = 1;
+	camera.position.z = -1.5;
+
+	camera.lookAt( new THREE.Vector3( 0, 0, 0 ))
+
+	var balls = []
+
+	balls.push(new PhysicsObject(cueBall,
+															 ballMass,
+															 new THREE.Vector3(0, 0, 0)))
+	balls.push(new PhysicsObject(oneBall,
+															 ballMass,
+															 new THREE.Vector3(0, 0, 0)))
+	balls.push(new PhysicsObject(twoBall,
+															 ballMass,
+															 new THREE.Vector3(0, 0, 0)))
+
+	// Rotate the ball slowly
+	var animation = function (t) {
+
+		// Collision detection
+		detectCollisions()
+
+		for (x in balls) {
+			balls[x].updateForces(t)
+		}
+
+		// Force application
+		return true
+	}
+
+	// Allows the user to use the file chooser instead of clicking.
+	canvas.addEventListener("click", function () {
+		balls[0].setForce(new THREE.Vector3(text.x, text.y, text.z))
+	});
+
+	/* Holds the properties of the object */
+	var ObjectProperties = function() {
+	  this.x = 0;
+		this.y = 0;
+		this.z = 0;
+	  this.kinCoef = 1;
+		this.restitution = .9
+	};
+	var text = new ObjectProperties();
+
+	window.onload = function() {
+		var gui = new dat.GUI();
+
+		// Handles the spatial values of the object
+		var forceFolder = gui.addFolder('Forces')
+		var accX = forceFolder.add(text, 'x', -.1, .1)
+		var accY = forceFolder.add(text, 'y', -.1, .1)
+		var accZ = forceFolder.add(text, 'z', -.1, .1)
+	  var kin = gui.add(text, 'kinCoef', 0, 1)
+		var res = gui.add(text, 'restitution', 0, 1)
+
+		kin.onChange(function(value) {
+			for(var x = 0; x < balls.length; x++) {
+				balls[x].setKineticCoef(value)
+			}
+		})
+
+		res.onChange(function(value) {
+			restitution = value
+		})
+
+		forceFolder.open()
+
+		var positionFolder = gui.addFolder('Position')
+
+		positionFolder.open()
+
+	};
+
+	renderer.render( scene, camera )
+
+
+	animate(scene, renderer, animation)
+
+	</script>
+</body>
+</html>
