@@ -89,8 +89,8 @@
 	// Object geometric constants (in meters)
 	var ballRadius = .057
 	var ballMass = .17
-	var tableHeight = 2.438
-	var tableWidth = 1.298
+	var tableHeight = 2
+	var tableWidth = 2
 	var shortCushionDimension = new THREE.Vector3( 1.448, .1, .076) // width, height, depth
 	var longCushionDimension = new THREE.Vector3( 2.438, .1, .076)
 	var restitution = .9
@@ -107,87 +107,22 @@
 	table.receiveShadow = true
 	table.castShadow = false
 
-	/* Cushions */
-	var shortCushionGeometry = new THREE.BoxGeometry( shortCushionDimension.x,
-		shortCushionDimension.y,
-		shortCushionDimension.z )
-	var shortCushionTexture = THREE.ImageUtils.loadTexture('../../textures/pool_cushion.png')
-	shortCushionTexture.wrapS = tableTexture.wrapT = THREE.MirroredRepeatWrapping
-	shortCushionTexture.repeat.set(16, 1)
-	shortCushionTexture.minFilter = THREE.NearestFilter
-
-	var longCushionGeometry = new THREE.BoxGeometry( longCushionDimension.x,
-		longCushionDimension.y,
-		longCushionDimension.z )
-	var longCushionTexture = THREE.ImageUtils.loadTexture('../../textures/pool_cushion.png')
-	longCushionTexture.repeat.set(32, 1)
-	longCushionTexture.wrapS = tableTexture.wrapT = THREE.MirroredRepeatWrapping
-	longCushionTexture.minFilter = THREE.NearestFilter
-
-	var shortCushionMaterial = new THREE.MeshPhongMaterial( {
-		map: shortCushionTexture,
-		specular: 0x222222,
-		shininess: 30,
-		shading: THREE.SmoothShading } )
-	var longCushionMaterial = new THREE.MeshPhongMaterial( {
-		map: longCushionTexture,
-		specular: 0x222222,
-		shininess: 30,
-		shading: THREE.SmoothShading } )
-	var leftCushion = new THREE.Mesh( longCushionGeometry, longCushionMaterial.clone() )
-	leftCushion.geometry.computeBoundingBox()
-	leftCushion.receiveShadow = true
-	leftCushion.castShadow =  false
-
-	var rightCushion = new THREE.Mesh( longCushionGeometry, longCushionMaterial.clone() )
-	rightCushion.geometry.computeBoundingBox()
-	rightCushion.receiveShadow = true
-	rightCushion.castShadow = false
-
-	var topCushion = new THREE.Mesh( shortCushionGeometry, shortCushionMaterial.clone() )
-	topCushion.geometry.computeBoundingBox()
-	topCushion.receiveShadow = true
-	topCushion.castShadow = false
-	var bottomCushion = new THREE.Mesh( shortCushionGeometry, shortCushionMaterial.clone() )
-	bottomCushion.geometry.computeBoundingBox()
-	bottomCushion.receiveShadow = true
-	bottomCushion.castShadow = false
-
 	// Cushion bounding boxes
 	var walls = []
 
 	var poop = (tableWidth + longCushionDimension.z)/2
 	var dookie = (tableHeight + shortCushionDimension.z)/2
 
-	walls.push(new THREE.Plane(new THREE.Vector3(0, 0, -1), dookie))
-	walls.push(new THREE.Plane(new THREE.Vector3(0, 0, 1), dookie))
-	walls.push(new THREE.Plane(new THREE.Vector3(1, 0, 0), poop))
-	walls.push(new THREE.Plane(new THREE.Vector3(-1, 0, 0), poop))
+	walls.push(new THREE.Plane(new THREE.Vector3(0, 0, -1), 1))
+	walls.push(new THREE.Plane(new THREE.Vector3(0, 0, 1), 1))
+	walls.push(new THREE.Plane(new THREE.Vector3(1, 0, 0), 1))
+	walls.push(new THREE.Plane(new THREE.Vector3(-1, 0, 0), 1))
 	walls.push(new THREE.Plane(new THREE.Vector3(0, 1, 0), ballRadius))
 	walls.push(new THREE.Plane(new THREE.Vector3(0, -1, 0), 1))
 
 	scene.add( table )
-	scene.add( leftCushion )
-	scene.add( rightCushion )
-	scene.add( topCushion )
-	scene.add( bottomCushion )
 
 	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
-
-	var longCushionXOffset = (tableWidth + longCushionDimension.z)/2
-	var cusionYOffset = longCushionDimension.y/2
-
-	leftCushion.rotation.set(0, THREE.Math.degToRad(90), 0 )
-	leftCushion.position.set(-longCushionXOffset, cusionYOffset, 0)
-
-	rightCushion.rotation.set(0, THREE.Math.degToRad(90), 0 )
-	rightCushion.position.set(longCushionXOffset, cusionYOffset, 0)
-
-	var shortCushionZOffset = (tableHeight + shortCushionDimension.z)/2
-
-	topCushion.position.set(0, cusionYOffset, shortCushionZOffset)
-
-	bottomCushion.position.set(0, cusionYOffset, -shortCushionZOffset)
 
 	// Initialize the camera position
 	camera.position.x = -.5;
