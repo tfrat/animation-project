@@ -157,7 +157,6 @@
 	bottomCushion.receiveShadow = true
 	bottomCushion.castShadow = false
 
-
 	// Cushion bounding boxes
 	var walls = []
 
@@ -242,14 +241,11 @@
 	window.onkeyup = function (e) {
 		switch(e.which) {
 			case 32:
-				console.log("pressed");
-				selectedBall.setForce(new THREE.Vector3(text.x, text.y, text.z))
+				selectedBall.setForce(new THREE.Vector3(forces.x, forces.y, forces.z))
 				break;
 			default:
 				break;
 		}
-
-
 	};
 
 	/* Holds the properties of the object */
@@ -260,32 +256,45 @@
 	  this.kinCoef = 1;
 		this.restitution = .9
 	};
-	var text = new ObjectProperties();
-
+	var forces = new ObjectProperties()
+	var pos = new THREE.Vector3()
 	window.onload = function() {
-		var gui = new dat.GUI();
+		var gui = new dat.GUI()
 
 		// Handles the spatial values of the object
 		var forceFolder = gui.addFolder('Forces')
-		var accX = forceFolder.add(text, 'x', -.1, .1)
-		var accY = forceFolder.add(text, 'y', -.1, .1)
-		var accZ = forceFolder.add(text, 'z', -.1, .1)
-	  var kin = gui.add(text, 'kinCoef', 0, 1)
-		var res = gui.add(text, 'restitution', 0, 1)
+		var accX = forceFolder.add(forces, 'x', -.3, .3)
+		var accY = forceFolder.add(forces, 'y', -.3, .3)
+		var accZ = forceFolder.add(forces, 'z', -.3, .3)
+	  var kin = gui.add(forces, 'kinCoef', 0, 1)
+		var res = gui.add(forces, 'restitution', 0, 1)
 
 		kin.onChange(function(value) {
-			for(var x = 0; x < balls.length; x++) {
-				balls[x].setKineticCoef(value)
-			}
+			selectedBall.setKineticCoef(value)
 		})
 
 		res.onChange(function(value) {
-			restitution = value
+			selectedBall.restitution = value
 		})
 
 		forceFolder.open()
 
 		var positionFolder = gui.addFolder('Position')
+		var posX = positionFolder.add(pos, 'x', -2, 2)
+		var posY = positionFolder.add(pos, 'y', ballRadius, 2)
+		var posZ = positionFolder.add(pos, 'z', -2, 2)
+
+		posX.onChange(function(value) {
+			selectedBall.getPosition().x = value
+		})
+
+		posY.onChange(function(value) {
+			selectedBall.getPosition().y = value
+		})
+
+		posZ.onChange(function(value) {
+			selectedBall.getPosition().z = value
+		})
 
 		positionFolder.open()
 

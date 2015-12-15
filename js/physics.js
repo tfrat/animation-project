@@ -15,6 +15,7 @@ class PhysicsObject {
     this.normal = this.mass * this.gravity
     this.staticForce = this.normal * this.us
     this.kineticForce = this.normal * this.uk
+    this.restitution = .9
   }
 
   setKineticCoef(value) {
@@ -135,7 +136,7 @@ function detectWalls() {
           var reflected = walls[x].normal.clone().multiplyScalar(2 * ri.dot(walls[x].normal))
 
           reflected.sub(ri)
-          reflected.multiplyScalar(restitution)
+          reflected.multiplyScalar(this.restitution)
           balls[y].setVelocity(reflected)
         }
       }
