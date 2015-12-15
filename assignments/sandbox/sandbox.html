@@ -206,6 +206,17 @@
 		selectedBall = balls[balls.length - 1]
 	}
 
+	var removeBall = function() {
+		if(balls.length > 0) {
+			var index = 0
+			while(balls[index].getID() != selectedBall.getID()) {
+				index++
+			}
+			scene.remove( selectedBall.object )
+			balls.splice(index, 1)
+		}
+	}
+
 	// Rotate the ball slowly
 	var animation = function (t) {
 
@@ -291,6 +302,8 @@
 		var add = { Add: addBall};
 		gui.add(add,'Add');
 
+		var remove = { Remove: removeBall}
+		gui.add(remove, 'Remove')
 
 	};
 
