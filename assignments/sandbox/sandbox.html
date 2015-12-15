@@ -245,8 +245,6 @@
 			selectedBall.restitution = value
 		})
 
-		forceFolder.open()
-
 		var positionFolder = gui.addFolder('Position')
 		var posX = positionFolder.add(pos, 'x', -2, 2)
 		var posY = positionFolder.add(pos, 'y', ballRadius, 2)
@@ -263,8 +261,6 @@
 		posZ.onChange(function(value) {
 			selectedBall.getPosition().z = value
 		})
-
-		positionFolder.open()
 
 		var colorPicker = gui.addColor(forces, 'color')
 
