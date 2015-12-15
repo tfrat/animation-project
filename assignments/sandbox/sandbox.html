@@ -256,6 +256,7 @@
 		this.z = 0;
 	  this.kinCoef = 1;
 		this.restitution = .9
+		this.color = 0xFFFFFF
 	};
 	var forces = new ObjectProperties()
 	var pos = new THREE.Vector3()
@@ -298,6 +299,13 @@
 		})
 
 		positionFolder.open()
+
+		var colorPicker = gui.addColor(forces, 'color')
+
+		colorPicker.onChange(function(value) {
+			selectedBall.object.material.color.setHex(value)
+		})
+
 
 	};
 
