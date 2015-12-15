@@ -179,6 +179,15 @@
 		}
 	}
 
+	var stopBalls = function() {
+		for(var x = 0; x < balls.length; x++) {
+			var currBall = balls[x]
+			currBall.setForce(new THREE.Vector3(0,
+																					0,
+																					0))
+		}
+	}
+
 	// Rotate the ball slowly
 	var animation = function (t) {
 
@@ -271,6 +280,9 @@
 
 		var randomize = { Randomize: randomizeBalls}
 		gui.add(randomize, 'Randomize')
+
+		var stop = { Stop: stopBalls}
+		gui.add(stop, 'Stop')
 
 	}
 
