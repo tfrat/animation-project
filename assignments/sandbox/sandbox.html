@@ -143,7 +143,7 @@
 		)
 
 		var ball = makeSphere(ballRadius, randoColor)
-		ball.position.set(0, ballRadius, 0)
+		ball.position.set(randomRange(-1, 1), 2, randomRange(-1, 1))
 
 
 		scene.add( ball )
@@ -176,6 +176,15 @@
 				}
 			)
 			currBall.object.material.color.set(randoColor)
+		}
+	}
+
+	var stopBalls = function() {
+		for(var x = 0; x < balls.length; x++) {
+			var currBall = balls[x]
+			currBall.setForce(new THREE.Vector3(0,
+																					0,
+																					0))
 		}
 	}
 
@@ -236,8 +245,6 @@
 			selectedBall.restitution = value
 		})
 
-		forceFolder.open()
-
 		var positionFolder = gui.addFolder('Position')
 		var posX = positionFolder.add(pos, 'x', -2, 2)
 		var posY = positionFolder.add(pos, 'y', ballRadius, 2)
@@ -255,8 +262,6 @@
 			selectedBall.getPosition().z = value
 		})
 
-		positionFolder.open()
-
 		var colorPicker = gui.addColor(forces, 'color')
 
 		colorPicker.onChange(function(value) {
@@ -271,6 +276,9 @@
 
 		var randomize = { Randomize: randomizeBalls}
 		gui.add(randomize, 'Randomize')
+
+		var stop = { Stop: stopBalls}
+		gui.add(stop, 'Stop')
 
 	}
 
