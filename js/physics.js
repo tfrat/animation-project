@@ -136,7 +136,7 @@ function detectWalls() {
           var reflected = walls[x].normal.clone().multiplyScalar(2 * ri.dot(walls[x].normal))
 
           reflected.sub(ri)
-          reflected.multiplyScalar(this.restitution)
+          reflected.multiplyScalar(balls[y].restitution)
           balls[y].setVelocity(reflected)
         }
       }
