@@ -143,7 +143,9 @@
 		)
 
 		var ball = makeSphere(ballRadius, randoColor)
-		ball.position.set(randomRange(-1, 1), 2, randomRange(-1, 1))
+		ball.position.set(randomRange(-1 + ballRadius, 1 - ballRadius),
+		2, randomRange(-1 + ballRadius, 1 - ballRadius))
+
 
 
 		scene.add( ball )
