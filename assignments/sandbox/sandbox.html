@@ -95,9 +95,10 @@
 	var restitution = .9
 
 	/* Sphere */
-	var cueBall = makeSphere(ballRadius, '../../textures/balls/BallCue.jpg')
-	var oneBall = makeSphere(ballRadius, '../../textures/balls/Ball1.jpg')
-	var twoBall = makeSphere(ballRadius, '../../textures/balls/Ball2.jpg')
+	var cueBall = makeSphere(ballRadius, 0xFFFFFF)
+	var oneBall = makeSphere(ballRadius, 0x00FF00)
+	var twoBall = makeSphere(ballRadius, 0x0000FF)
+
 
 	/* Table */
 	var tableGeometry = new THREE.PlaneBufferGeometry(tableHeight, tableWidth)

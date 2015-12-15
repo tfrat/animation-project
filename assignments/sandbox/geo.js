@@ -1,9 +1,9 @@
-function makeSphere(radius, texture) {
+function makeSphere(radius, color) {
   var sphereGeometry = new THREE.SphereGeometry( radius, 32, 32 )
-	var sphereTexture = new THREE.ImageUtils.loadTexture(texture)
-	sphereTexture.minFilter = THREE.LinearFilter
+	//var sphereTexture = new THREE.ImageUtils.loadTexture(texture)
+	//sphereTexture.minFilter = THREE.LinearFilter
 	var sphereMaterial = new THREE.MeshPhongMaterial( {
-		map: sphereTexture,
+		color: color,
 		specular: 0x222222,
 		shininess: 100,
 		shading: THREE.SmoothShading
