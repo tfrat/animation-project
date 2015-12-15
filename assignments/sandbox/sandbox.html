@@ -12,6 +12,7 @@
 	<script src="../../js/dat.gui.min.js"></script>
 	<script src="../../js/animator.js"></script>
 	<script src="../../js/physics.js"></script>
+	<script src="../../js/randomColor.js"></script>
 	<script src="./geo.js"></script>
 	<script>
 	var scene = new THREE.Scene()
@@ -163,6 +164,7 @@
 	walls.push(new THREE.Plane(new THREE.Vector3(1, 0, 0), poop))
 	walls.push(new THREE.Plane(new THREE.Vector3(-1, 0, 0), poop))
 	walls.push(new THREE.Plane(new THREE.Vector3(0, 1, 0), ballRadius))
+	walls.push(new THREE.Plane(new THREE.Vector3(0, -1, 0), 1))
 
 	scene.add( table )
 	scene.add( leftCushion )
@@ -198,8 +200,17 @@
 
   var addBall = function() {
 
-		var ball = makeSphere(ballRadius, 0xFFFFFF)
+		var randoColor = randomColor(
+			{
+				format: 'rgb',
+				luminosity: 'dark'
+			}
+		)
+
+		var ball = makeSphere(ballRadius, randoColor)
 		ball.position.set(0, ballRadius, 0)
+
+
 		scene.add( ball )
 
 		balls.push(new PhysicsObject(ball, ballMass, zero.clone()))
@@ -214,6 +225,22 @@
 			}
 			scene.remove( selectedBall.object )
 			balls.splice(index, 1)
+		}
+	}
+
+	var randomizeBalls = function() {
+		for(var x = 0; x < balls.length; x++) {
+			var currBall = balls[x]
+			currBall.setForce(new THREE.Vector3(randomRange(-.1, .1),
+																					randomRange(0, .05),
+																					randomRange(-.1, .1)))
+      var randoColor = randomColor(
+				{
+					format: 'rgb',
+					luminosity: 'dark'
+				}
+			)
+			currBall.object.material.color.set(randoColor)
 		}
 	}
 
@@ -251,8 +278,10 @@
 		this.restitution = .9
 		this.color = 0xFFFFFF
 	};
+
 	var forces = new ObjectProperties()
 	var pos = new THREE.Vector3()
+
 	window.onload = function() {
 		var gui = new dat.GUI()
 
@@ -305,7 +334,10 @@
 		var remove = { Remove: removeBall}
 		gui.add(remove, 'Remove')
 
-	};
+		var randomize = { Randomize: randomizeBalls}
+		gui.add(randomize, 'Randomize')
+
+	}
 
 	renderer.render( scene, camera )
 

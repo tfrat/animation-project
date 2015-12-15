@@ -149,3 +149,7 @@ function detectCollisions() {
 
   detectWalls()
 }
+
+function randomRange(start, end) {
+  return (Math.random() * (end - start)) + start
+}
