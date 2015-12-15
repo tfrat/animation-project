@@ -94,12 +94,6 @@
 	var longCushionDimension = new THREE.Vector3( 2.438, .1, .076)
 	var restitution = .9
 
-	/* Sphere */
-	var cueBall = makeSphere(ballRadius, 0xFFFFFF)
-	var oneBall = makeSphere(ballRadius, 0x00FF00)
-	var twoBall = makeSphere(ballRadius, 0x0000FF)
-
-
 	/* Table */
 	var tableGeometry = new THREE.PlaneBufferGeometry(tableHeight, tableWidth)
 	var tableTexture = THREE.ImageUtils.loadTexture('../../textures/pool_table.png')
@@ -169,22 +163,12 @@
 	walls.push(new THREE.Plane(new THREE.Vector3(1, 0, 0), poop))
 	walls.push(new THREE.Plane(new THREE.Vector3(-1, 0, 0), poop))
 	walls.push(new THREE.Plane(new THREE.Vector3(0, 1, 0), ballRadius))
-	//walls.push(new THREE.Plane(new THREE.Vector3(0, -1, 0), 3))
 
-	// Add the objects to the scene
-	scene.add( cueBall )
-	scene.add( oneBall )
-	scene.add( twoBall )
 	scene.add( table )
 	scene.add( leftCushion )
 	scene.add( rightCushion )
 	scene.add( topCushion )
 	scene.add( bottomCushion )
-
-	// Initialize the object's spatial properties
-	cueBall.position.set(0, ballRadius, 0)
-	oneBall.position.set(ballRadius, ballRadius, -1)
-	twoBall.position.set(-ballRadius, ballRadius, -1)
 
 	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
 
@@ -212,16 +196,16 @@
 
 	var balls = []
 
-	balls.push(new PhysicsObject(cueBall,
-															 ballMass,
-															 new THREE.Vector3(0, 0, 0)))
-	balls.push(new PhysicsObject(oneBall,
-															 ballMass,
-															 new THREE.Vector3(0, 0, 0)))
-	balls.push(new PhysicsObject(twoBall,
-															 ballMass,
-															 new THREE.Vector3(0, 0, 0)))
+  var addBall = function() {
 
+		var ball = makeSphere(ballRadius, 0xFFFFFF)
+		ball.position.set(0, ballRadius, 0)
+		scene.add( ball )
+
+		balls.push(new PhysicsObject(ball, ballMass, zero.clone()))
+		selectedBall = balls[balls.length - 1]
+	}
+	addBall()
   var selectedBall = balls[0]
 
 	// Rotate the ball slowly
@@ -306,6 +290,9 @@
 			selectedBall.object.material.color.setHex(value)
 		})
 
+		var obj = { Add: addBall};
+
+		gui.add(obj,'Add');
 
 	};
 
