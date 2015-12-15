@@ -6,6 +6,7 @@ class PhysicsObject {
     this.uk = .09
     this.us = .5
     this.gravity = 9.8
+    this.gravityVec = new THREE.Vector3(0, -.1, 0)
     this.object = object
     this.mass = mass
     this.force = force
@@ -14,6 +15,7 @@ class PhysicsObject {
     this.normal = this.mass * this.gravity
     this.staticForce = this.normal * this.us
     this.kineticForce = this.normal * this.uk
+    this.restitution = .9
   }
 
   setKineticCoef(value) {
@@ -23,6 +25,10 @@ class PhysicsObject {
 
   getPosition() {
     return this.object.position
+  }
+
+  getID() {
+    return this.object.id
   }
 
   setVelocity(velocity) {
@@ -47,6 +53,8 @@ class PhysicsObject {
     fn.multiplyScalar(this.kineticForce)
     this.force.add(fn)
 
+    this.force.add(this.gravityVec)
+
     this.applyForces(t)
   }
 
@@ -54,7 +62,7 @@ class PhysicsObject {
     this.object.position.addScaledVector(this.velocity, t)
     var delta = this.force.clone().multiplyScalar(t)
 
-    if(delta.length() > this.momentum.length()){
+    if(delta.length() > this.momentum.length() && this.getPosition().y <= ballRadius){
       this.setForce(new THREE.Vector3(0,0,0))
     } else {
       this.momentum.add(delta)
@@ -128,7 +136,7 @@ function detectWalls() {
           var reflected = walls[x].normal.clone().multiplyScalar(2 * ri.dot(walls[x].normal))
 
           reflected.sub(ri)
-          reflected.multiplyScalar(restitution)
+          reflected.multiplyScalar(this.restitution)
           balls[y].setVelocity(reflected)
         }
       }
