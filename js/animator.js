@@ -166,7 +166,6 @@ function animate (scene, renderer, animation) {
 
     renderAgain = animation(t)
     renderer.render( scene, camera )
-    console.log("Rendering...")
   }
 
   render()
