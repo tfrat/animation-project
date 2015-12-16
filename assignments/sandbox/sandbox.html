@@ -118,7 +118,7 @@
 	walls.push(new THREE.Plane(new THREE.Vector3(1, 0, 0), 1))
 	walls.push(new THREE.Plane(new THREE.Vector3(-1, 0, 0), 1))
 	walls.push(new THREE.Plane(new THREE.Vector3(0, 1, 0), ballRadius))
-	walls.push(new THREE.Plane(new THREE.Vector3(0, -1, 0), 1))
+	walls.push(new THREE.Plane(new THREE.Vector3(0, -1, 0), 1.25))
 
 	scene.add( table )
 
@@ -154,6 +154,8 @@
 
 		balls.push(new PhysicsObject(ball, ballMass, zero.clone()))
 		selectedBall = balls[balls.length - 1]
+
+		selectedBall.restitution = randomRange(.5, .99)
 	}
 
 	var removeBall = function() {
@@ -180,6 +182,8 @@
 				}
 			)
 			currBall.object.material.color.set(randoColor)
+
+			currBall.restitution = randomRange(.75, .9)
 		}
 	}
 
