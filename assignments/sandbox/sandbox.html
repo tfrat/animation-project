@@ -40,6 +40,7 @@
 	var mouse = new THREE.Vector2()
 	var raycaster = new THREE.Raycaster()
 
+	var selectedBall = null
 	function onMouseMove( event ) {
 
 		// calculate mouse position in normalized device coordinates
@@ -94,14 +95,18 @@
 	var shortCushionDimension = new THREE.Vector3( 1.448, .1, .076) // width, height, depth
 	var longCushionDimension = new THREE.Vector3( 2.438, .1, .076)
 	var restitution = .9
-
+	var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
 	/* Table */
 	var tableGeometry = new THREE.PlaneBufferGeometry(tableHeight, tableWidth)
-	var tableTexture = THREE.ImageUtils.loadTexture('../../textures/marble.jpg')
-	tableTexture.wrapS = tableTexture.wrapT = THREE.RepeatWrapping
-	tableTexture.repeat.set(16, 16)
+	if(isSafari) {
+		var tableTexture = THREE.ImageUtils.loadTexture('../../textures/marble.jpg')
+		tableTexture.wrapS = tableTexture.wrapT = THREE.RepeatWrapping
+		tableTexture.repeat.set(4, 4)
 
-	var tableMaterial = new THREE.MeshLambertMaterial( { map: tableTexture } )
+		var tableMaterial = new THREE.MeshLambertMaterial( { map: tableTexture } )
+	} else {
+		var tableMaterial = new THREE.MeshLambertMaterial( { color: 0x89FFFA } )
+	}
 	var table = new THREE.Mesh( tableGeometry, tableMaterial)
 	table.material.side = THREE.DoubleSide
 	table.receiveShadow = true
@@ -125,9 +130,7 @@
 	table.rotation.set(THREE.Math.degToRad(90), 0, THREE.Math.degToRad(90))
 
 	// Initialize the camera position
-	camera.position.x = -.5;
-	camera.position.y = 1;
-	camera.position.z = -1.5;
+	camera.position.set(-.5, 1, -1.5)
 
 	camera.lookAt( new THREE.Vector3( 0, 0, 0 ))
 
@@ -196,6 +199,71 @@
 		}
 	}
 
+	function calculateNormal(ballOne, ballTwo) {
+	  return ballOne.getPosition().clone().sub(ballTwo.getPosition()).normalize()
+	}
+
+	function handleCollision(ballOne, ballTwo) {
+
+	  var normal = calculateNormal(ballOne, ballTwo)
+
+	  var a1 = ballOne.velocity.dot(normal)
+	  var a2 = ballTwo.velocity.dot(normal)
+
+	  var p = (2 * (a1 - a2)) / ballOne.mass
+
+	  var tmp = normal.clone().multiplyScalar(p/10)
+
+	  var v1 = ballOne.velocity.clone().sub(tmp)
+	  var v2 = ballTwo.velocity.clone().add(tmp)
+
+	  ballOne.setVelocity(v1)
+	  ballTwo.setVelocity(v2)
+	}
+
+	function detectSpheres() {
+	  for (var x = 0; x < balls.length; x++) {
+	    var ballOne = new THREE.Sphere(balls[x].getPosition(), ballRadius)
+	    for (var y = x + 1; y < balls.length; y++) {
+	      var ballTwo = new THREE.Sphere(balls[y].getPosition(), ballRadius)
+	      if(balls[x].velocity.dot(calculateNormal(balls[x],balls[y])) <= 0) {
+	        if (ballOne.intersectsSphere(ballTwo)) {
+	          handleCollision(balls[x], balls[y])
+	        }
+	      }
+	    }
+	  }
+	}
+
+	function detectWalls() {
+	  for(var y = 0; y < balls.length; y++) {
+	    var ball = new THREE.Sphere(balls[y].getPosition(), ballRadius)
+	    for(var x = 0; x < walls.length; x++) {
+	      if(Math.abs(walls[x].distanceToSphere(ball)) <= ballRadius) {
+
+	        if(balls[y].velocity.dot(walls[x].normal) < 0) {
+	          var ri = balls[y].velocity.clone().negate()
+	          var reflected = walls[x].normal.clone().multiplyScalar(2 * ri.dot(walls[x].normal))
+
+	          reflected.sub(ri)
+	          reflected.multiplyScalar(balls[y].restitution)
+	          balls[y].setVelocity(reflected)
+	        }
+	      }
+	    }
+	  }
+	}
+
+	function detectCollisions() {
+	  detectSpheres()
+
+	  detectWalls()
+	}
+
+	function randomRange(start, end) {
+	  return (Math.random() * (end - start)) + start
+	}
+
 	// Rotate the ball slowly
 	var animation = function (t) {
 
@@ -204,6 +272,13 @@
 
 		for (x in balls) {
 			balls[x].updateForces(t)
+		}
+
+		if(false) {
+			camera.position.set(selectedBall.object.position.x,
+												  selectedBall.object.position.y + ballRadius,
+													selectedBall.object.position.z)
+			camera.lookAt(selectedBall.velocity.clone())
 		}
 
 		// Force application

@@ -1,53 +1,52 @@
 
-class PhysicsObject {
 
-  constructor(object, mass, force) {
-    this.inMotion = true
-    this.uk = .09
-    this.us = .5
-    this.gravity = 9.8
-    this.gravityVec = new THREE.Vector3(0, -.1, 0)
-    this.object = object
-    this.mass = mass
-    this.force = force
-    this.momentum = this.force.clone().multiplyScalar(1/mass)
-    this.velocity = this.momentum.clone().multiplyScalar(1/mass)
-    this.normal = this.mass * this.gravity
-    this.staticForce = this.normal * this.us
-    this.kineticForce = this.normal * this.uk
-    this.restitution = .9
-  }
+function PhysicsObject(object, mass, force) {
+  this.inMotion = true
+  this.uk = .09
+  this.us = .5
+  this.gravity = 9.8
+  this.gravityVec = new THREE.Vector3(0, -.1, 0)
+  this.object = object
+  this.mass = mass
+  this.force = force
+  this.momentum = this.force.clone().multiplyScalar(1/mass)
+  this.velocity = this.momentum.clone().multiplyScalar(1/mass)
+  this.normal = this.mass * this.gravity
+  this.staticForce = this.normal * this.us
+  this.kineticForce = this.normal * this.uk
+  this.restitution = .9
 
-  setKineticCoef(value) {
+
+  this.setKineticCoef = function (value) {
     this.uk = value
     this.kineticForce = this.normal * this.uk
   }
 
-  getPosition() {
+  this.getPosition = function() {
     return this.object.position
   }
 
-  getID() {
+  this.getID = function() {
     return this.object.id
   }
 
-  setVelocity(velocity) {
+  this.setVelocity = function (velocity) {
     this.velocity = velocity
     this.momentum = this.velocity.clone().multiplyScalar(this.mass)
     this.force = this.momentum.clone().multiplyScalar(this.mass)
   }
 
-  setForce(force) {
+  this.setForce = function (force) {
     this.force = force
     this.momentum = this.force.clone().multiplyScalar(1/this.mass)
     this.velocity = this.momentum.clone().multiplyScalar(1/this.mass)
   }
 
-  addForce(force) {
+  this.addForce = function (force) {
     this.force.add(force)
   }
 
-  updateForces( t ) {
+  this.updateForces = function ( t ) {
     var fn = this.force.clone().normalize()
     fn.negate()
     fn.multiplyScalar(this.kineticForce)
@@ -58,7 +57,7 @@ class PhysicsObject {
     this.applyForces(t)
   }
 
-  applyForces( t ) {
+  this.applyForces = function ( t ) {
     this.object.position.addScaledVector(this.velocity, t)
     var delta = this.force.clone().multiplyScalar(t)
 
@@ -102,14 +101,14 @@ function handleCollision(ballOne, ballTwo) {
 function detectSpheres() {
   for (var x = 0; x < balls.length; x++) {
     var ballOne = new THREE.Sphere(balls[x].getPosition(), ballRadius)
-      for (var y = x + 1; y < balls.length; y++) {
-        var ballTwo = new THREE.Sphere(balls[y].getPosition(), ballRadius)
-        if(balls[x].velocity.dot(calculateNormal(balls[x],balls[y])) <= 0) {
-          if (ballOne.intersectsSphere(ballTwo)) {
-            handleCollision(balls[x], balls[y])
-          }
+    for (var y = x + 1; y < balls.length; y++) {
+      var ballTwo = new THREE.Sphere(balls[y].getPosition(), ballRadius)
+      if(balls[x].velocity.dot(calculateNormal(balls[x],balls[y])) <= 0) {
+        if (ballOne.intersectsSphere(ballTwo)) {
+          handleCollision(balls[x], balls[y])
         }
       }
+    }
   }
 }
 
