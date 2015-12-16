@@ -81,43 +81,31 @@ function calculateNormal(ballOne, ballTwo) {
   return ballOne.getPosition().clone().sub(ballTwo.getPosition()).normalize()
 }
 
-function calculateImpulse(ballOne, ballTwo, normal) {
-
-  var impulse = normal.clone()
-  var scalar = (ballMass * (ballTwo.velocity.dot(normal) - ballOne.velocity.dot(normal)))/2
-  impulse.multiplyScalar(scalar)
-
-  return impulse
-}
-
-function applyImpulse(ball, impulse, normal) {
-  var newVelocity = ball.velocity.clone()
-
-  var tmp = normal.clone().multiplyScalar(impulse.dot(normal)/ball.mass)
-
-  newVelocity.add(tmp)
-
-  ball.setVelocity(newVelocity)
-}
-
 function handleCollision(ballOne, ballTwo) {
 
   var normal = calculateNormal(ballOne, ballTwo)
-  var impulse = calculateImpulse(ballOne, ballTwo, normal)
 
-  applyImpulse(ballOne, impulse, normal)
-  applyImpulse(ballTwo, impulse.clone().multiplyScalar(-1), normal)
+  var a1 = ballOne.velocity.dot(normal)
+  var a2 = ballTwo.velocity.dot(normal)
 
+  var p = (2 * (a1 - a2)) / ballOne.mass
+
+  var tmp = normal.clone().multiplyScalar(p/10)
+
+  var v1 = ballOne.velocity.clone().sub(tmp)
+  var v2 = ballTwo.velocity.clone().add(tmp)
+
+  ballOne.setVelocity(v1)
+  ballTwo.setVelocity(v2)
 }
-var zero = new THREE.Vector3(0, 0, 0)
+
 function detectSpheres() {
   for (var x = 0; x < balls.length; x++) {
     var ballOne = new THREE.Sphere(balls[x].getPosition(), ballRadius)
       for (var y = x + 1; y < balls.length; y++) {
         var ballTwo = new THREE.Sphere(balls[y].getPosition(), ballRadius)
-        if (ballOne.intersectsSphere(ballTwo)) {
-          if((balls[x].velocity.dot(balls[y].velocity) == 0 && balls[y].velocity.equals(zero)) ||
-              balls[x].velocity.dot(balls[y].velocity) < 0 && !balls[y].velocity.equals(zero)) {
+        if(balls[x].velocity.dot(calculateNormal(balls[x],balls[y])) <= 0) {
+          if (ballOne.intersectsSphere(ballTwo)) {
             handleCollision(balls[x], balls[y])
           }
         }
